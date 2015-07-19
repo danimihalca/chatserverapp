@@ -10,4 +10,4 @@ LINK_DIRECTORIES(${LIBRARY_INSTALL_PATH})
 SET(SOURCE_FILES src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} liblibwebsockets)
+target_link_libraries(${PROJECT_NAME} libwebsockets)
