@@ -26,9 +26,16 @@ int websocket_server_callback(struct libwebsocket_context*       ctx,
     {
         case LWS_CALLBACK_ESTABLISHED:
         {
-            char name[40];
+            char name[128];
             int fd = libwebsocket_get_socket_fd(wsi);
-            libwebsockets_get_peer_addresses(ctx,wsi,fd,name,40,data->ip,25);
+
+            libwebsockets_get_peer_addresses(ctx,
+                                             wsi,
+                                             fd,
+                                             name,
+                                             sizeof(name),
+                                             data->ip,
+                                             sizeof(data->ip));
 
             listener->onConnected(wsi, data);
             break;

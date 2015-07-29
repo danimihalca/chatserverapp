@@ -12,7 +12,7 @@ struct session_data
                       LWS_SEND_BUFFER_POST_PADDING];
     unsigned int len;
 
-    char ip[25];
+    char ip[30];
 };
 
 int websocket_server_callback(struct libwebsocket_context*       ctx,

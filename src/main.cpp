@@ -3,7 +3,7 @@
 
 #include <signal.h>
 
-#include "WebsocketServer/WebsocketServer.h"
+#include "ChatServer/ChatServer.h"
 
 bool interrupted = false;
 
@@ -16,11 +16,11 @@ void  INThandler(int sig)
 int main()
 {
     signal(SIGINT, INThandler);
-    std::unique_ptr<IWebsocketServer> websocketServer(new WebsocketServer(9003));
+    std::unique_ptr<IChatServer> chatServer(new ChatServer(9003));
 
     while (!interrupted)
     {
-        websocketServer->run();
+        chatServer->run();
     }
     return 0;
 }
