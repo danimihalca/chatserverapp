@@ -22,6 +22,7 @@ std::string JsonFactory::createLoginSuccessfulJSON(UserPOD user)
 {
     m_outputStream.str("");
     Json::Value root;
+    root[ACTION] =CS_LOGIN_RESPONSE;
     root[AUTHENTIFICATION_STATUS] = AUTH_OK;
     root[FULLNAME] = user.fullname;
     p_writer->write(root,&m_outputStream);
@@ -33,6 +34,7 @@ std::string JsonFactory::createLoginFailedJSON(Authentification_Status status)
 {
     m_outputStream.str("");
     Json::Value root;
+    root[ACTION] =CS_LOGIN_RESPONSE;
     root[AUTHENTIFICATION_STATUS] = status;
     p_writer->write(root,&m_outputStream);
 
