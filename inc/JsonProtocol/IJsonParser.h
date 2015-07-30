@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <common_protocol.h>
+#include <JsonChatProtocol/common_json_protocol.h>
 #include "pod.h"
 
 class IJsonParser

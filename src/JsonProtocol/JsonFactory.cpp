@@ -1,6 +1,6 @@
 #include "JsonProtocol/JsonFactory.h"
 
-#include <common_protocol.h>
+#include <JsonChatProtocol/common_json_protocol.h>
 
 JsonFactory::JsonFactory()
 {
