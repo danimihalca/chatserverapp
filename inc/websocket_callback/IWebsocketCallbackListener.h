@@ -1,7 +1,7 @@
 #ifndef IWEBSOCKETCALLBACKLISTENER_H
 #define IWEBSOCKETCALLBACKLISTENER_H
 
-class libwebsocket;
+struct libwebsocket;
 
 class IWebsocketCallbackListener
 {

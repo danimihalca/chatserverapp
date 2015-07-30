@@ -3,7 +3,7 @@
 
 #include <string>
 
-class libwebsocket;
+struct libwebsocket;
 class IWebsocketServerListener;
 
 class IWebsocketServer

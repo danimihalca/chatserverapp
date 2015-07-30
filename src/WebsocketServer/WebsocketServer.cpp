@@ -10,6 +10,7 @@
 #include "JsonProtocol/JsonParser.h"
 
 WebsocketServer::WebsocketServer(int port) :
+    b_isClosing(false),
     m_connectedClients()
 {
     m_protocols[0] = default_protocol;
@@ -47,6 +48,7 @@ WebsocketServer::WebsocketServer(int port) :
 
 WebsocketServer::~WebsocketServer()
 {
+    b_isClosing = true;
     libwebsocket_context_destroy(p_context);
 }
 
@@ -91,10 +93,13 @@ void WebsocketServer::onMessageReceived(libwebsocket* wsi, const char* message)
 
 void WebsocketServer::onDisconnected(libwebsocket* wsi)
 {
-    std::cout << "Disconnected: " << m_connectedClients[wsi]->ip << std::endl;
-    for(auto listener: m_listeners)
-    {
-        listener->onDisconnected(wsi);
-    }
-    m_connectedClients.erase(wsi);
+	if (!b_isClosing)
+	{
+		std::cout << "Disconnected: " << m_connectedClients[wsi]->ip << std::endl;
+		for(auto listener: m_listeners)
+		{
+			listener->onDisconnected(wsi);
+		}
+		m_connectedClients.erase(wsi);
+	}
 }

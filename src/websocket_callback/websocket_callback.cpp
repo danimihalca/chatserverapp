@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <debug_utils\log_debug.h>
 
 int websocket_server_callback(struct libwebsocket_context*       ctx,
                               struct libwebsocket*               wsi,

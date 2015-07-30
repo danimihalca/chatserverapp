@@ -1,12 +1,14 @@
 #include "DAO/UserDAO.h"
 
 #include "JsonProtocol/pod.h"
+#include <debug_utils\log_debug.h>
 
 UserDAO::UserDAO() :
     p_con(nullptr)
 {
     sql::Driver* driver = get_driver_instance();
     p_con = driver->connect("localhost:3306", "root", "root");
+    log_debug("DB CONNECTION: %s\n", p_con->isValid() ? "valid" : "invalid");
     p_con->setSchema("ChatDatabase");
 }
 

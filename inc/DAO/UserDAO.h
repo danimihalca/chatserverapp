@@ -1,7 +1,8 @@
 #ifndef USERDAO_H
 #define USERDAO_H
 
-#include <mysql/mysql.h>
+// #include <mysql/mysql.h>
+
 #include <cppconn/driver.h>
 #include <cppconn/connection.h>
 #include <cppconn/resultset.h>

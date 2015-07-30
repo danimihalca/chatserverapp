@@ -34,6 +34,7 @@ public:
     void onDisconnected(libwebsocket* wsi);
 
 private:
+	bool b_isClosing;
     struct libwebsocket_context* p_context;
     struct libwebsocket_protocols m_protocols[2];
     struct lws_context_creation_info m_info;
