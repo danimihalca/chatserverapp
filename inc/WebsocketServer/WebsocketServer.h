@@ -6,7 +6,7 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
-typedef websocketpp::server<websocketpp::config::asio> server;
+//typedef websocketpp::server<websocketpp::config::asio> server;
 
 using websocketpp::connection_hdl;
 using websocketpp::lib::placeholders::_1;
@@ -36,14 +36,14 @@ public:
 
 public:
 	void onConnected(connection_hdl hdl);
-	void onMessageReceived(connection_hdl hdl, const char* message);
+	void onMessageReceived(connection_hdl hdl, websocketpp::server<websocketpp::config::asio>::message_ptr message);
 	void onDisconnected(connection_hdl hdl);
 
 private:
 	bool b_isClosing;
-
+	int m_port;
     std::list<IWebsocketServerListener*> m_listeners;
-	server m_server;
+	websocketpp::server<websocketpp::config::asio> m_server;
 };
 
 #endif // WEBSOCKETSERVER_H

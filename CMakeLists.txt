@@ -15,29 +15,16 @@ IF (WIN32)
         INCLUDE_DIRECTORIES("C:/Program Files (x86)/MySQL/Connector.C++ 1.1/include")
         SET(MYSQL_CPP_CONNECTOR_PATH "C:/Program Files (x86)/MySQL/Connector.C++ 1.1/lib/debug")
         LINK_DIRECTORIES(${MYSQL_CPP_CONNECTOR_PATH})
-        add_definitions(-DASIO_STANDALONE)
-        add_definitions(-D_WEBSOCKETPP_CPP11_THREAD_)
-        add_definitions(-D_WEBSOCKETPP_CPP11_FUNCTIONAL_)
-        add_definitions(-D_WEBSOCKETPP_CPP11_SYSTEM_ERROR_)
-        add_definitions(-D_WEBSOCKETPP_CPP11_RANDOM_DEVICE_)
-        add_definitions(-D_WEBSOCKETPP_CPP11_MEMORY_)
         add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
-        #add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
-        add_definitions(-D_WEBSOCKETPP_CPP11_TYPE_TRAITS_)
-        add_definitions(-DASIO_HAS_CSTDINT)
-        add_definitions(-DASIO_HAS_STD_TYPE_TRAITS)
-        add_definitions(-DASIO_HAS_STD_SHARED_PTR)
-        add_definitions(-DASIO_HAS_STD_ADDRESSOF)
-        add_definitions(-DASIO_HAS_STD_SHARED_PTR)
-        add_definitions(-DASIO_HAS_STD_ARRAY)
-        add_definitions(-DASIO_HAS_STD_ATOMIC)
-        add_definitions(-DASIO_HAS_THREADS)
 ELSE()
         SET(LIBWEBSOCKETS_LIBRARY websockets)
 ENDIF()
 
-INCLUDE_DIRECTORIES("D:/thesis/libraries/asio/asio/include")
+INCLUDE_DIRECTORIES("D:/thesis/libraries/boost_1_58_0/")
 INCLUDE_DIRECTORIES("D:/thesis/libraries/websocketpp/include")
+
+LINK_DIRECTORIES("D:/thesis/libraries/boost_1_58_0/lib32-msvc-12.0")
+
 
 SET(HEADER_FILES inc/ChatServer/IChatServer.h
                  inc/ChatServer/ChatServer.h
