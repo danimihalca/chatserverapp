@@ -9,11 +9,12 @@
 #include <map>
 #include <string>
 
+#include <websocketpp/common/connection_hdl.hpp>
+
 class IWebsocketServer;
 class IJsonParser;
 class JsonFactory;
 
-struct libwebsocket;
 struct UserPOD;
 
 class ChatServer: public IChatServer, public IWebsocketServerListener
@@ -21,7 +22,7 @@ class ChatServer: public IChatServer, public IWebsocketServerListener
     struct UserValues
     {
         int dbId;
-        libwebsocket* websocket;
+		websocketpp::connection_hdl hdl;
     };
 
 public:
@@ -33,12 +34,12 @@ public:
 
     //Implements IWebsocketServerListener interface
 public:
-    void onMessageReceived(libwebsocket* websocket, const std::string& message);
-    void onDisconnected(libwebsocket* websocket);
+	void onMessageReceived(websocketpp::connection_hdl hdl, const std::string& message);
+	void onDisconnected(websocketpp::connection_hdl hdl);
 
 
 private:
-    void login(UserPOD user, libwebsocket* websocket);
+	void login(UserPOD user, websocketpp::connection_hdl hdl);
 
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;

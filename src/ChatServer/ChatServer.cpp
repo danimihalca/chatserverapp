@@ -20,7 +20,7 @@ void ChatServer::run()
     p_websocketServer->run();
 }
 
-void ChatServer::onMessageReceived(libwebsocket*      websocket,
+void ChatServer::onMessageReceived(websocketpp::connection_hdl hdl,
                                    const std::string& message)
 {
 //    try
@@ -38,7 +38,7 @@ void ChatServer::onMessageReceived(libwebsocket*      websocket,
         case CC_LOGIN_REQUEST:
         {
             UserPOD userCredentials = p_jsonParser->getUser();
-            login(userCredentials, websocket);
+            login(userCredentials, hdl);
             break;
         }
 
@@ -49,14 +49,14 @@ void ChatServer::onMessageReceived(libwebsocket*      websocket,
     }
 }
 
-void ChatServer::onDisconnected(libwebsocket* websocket)
+void ChatServer::onDisconnected(websocketpp::connection_hdl hdl1)
 {
     std::string username;
     for (auto client = m_loggedClients.begin();
          client != m_loggedClients.end();
          ++client)
     {
-        if (client->second.websocket == websocket)
+        if (client->second.hdl._Get() == hdl1._Get())
         {
             username = client->first;
             std::cout << "Disconnected user: " << username << std::endl;
@@ -66,7 +66,7 @@ void ChatServer::onDisconnected(libwebsocket* websocket)
     }
 }
 
-void ChatServer::login(UserPOD user, libwebsocket* websocket)
+void ChatServer::login(UserPOD user, websocketpp::connection_hdl hdl)
 {
     UserDAO userDao;
 
@@ -74,7 +74,7 @@ void ChatServer::login(UserPOD user, libwebsocket* websocket)
     {
         std::string authFailedJson = p_jsonFactory->createLoginFailedJSON(
             AUTH_ALREADY_LOGGED_IN);
-        p_websocketServer->sendMessage(websocket,authFailedJson);
+        p_websocketServer->sendMessage(hdl,authFailedJson);
         return;
     }
 
@@ -83,13 +83,13 @@ void ChatServer::login(UserPOD user, libwebsocket* websocket)
         std::cout << "FAILED LOGIN" << std::endl;
         std::string authFailedJson = p_jsonFactory->createLoginFailedJSON(
             AUTH_FAILED);
-        p_websocketServer->sendMessage(websocket,authFailedJson);
+        p_websocketServer->sendMessage(hdl,authFailedJson);
         return;
     }
 
     std::cout << "Logged in user: " << user.username << std::endl;
-    m_loggedClients[user.username] = UserValues {user.id, websocket};
+    m_loggedClients[user.username] = UserValues {user.id, hdl};
 
     std::string authFailedJson = p_jsonFactory->createLoginSuccessfulJSON(user);
-    p_websocketServer->sendMessage(websocket,authFailedJson);
+    p_websocketServer->sendMessage(hdl,authFailedJson);
 }

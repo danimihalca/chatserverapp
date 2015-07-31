@@ -3,7 +3,7 @@
 
 #include <string>
 
-struct libwebsocket;
+#include <websocketpp\common\connection_hdl.hpp>
 
 class IWebsocketServerListener
 {
@@ -13,8 +13,8 @@ public:
 
     }
 
-    virtual void onMessageReceived(libwebsocket* websocket, const std::string& message) = 0;
-    virtual void onDisconnected(libwebsocket* websocket) = 0;
+	virtual void onMessageReceived(websocketpp::connection_hdl hdl, const std::string& message) = 0;
+	virtual void onDisconnected(websocketpp::connection_hdl hdl) = 0;
 };
 
 #endif // IWEBSOCKETSERVERLISTENER_H

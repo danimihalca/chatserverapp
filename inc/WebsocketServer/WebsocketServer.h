@@ -2,8 +2,16 @@
 #define WEBSOCKETSERVER_H
 
 #include "IWebsocketServer.h"
-#include "websocket_callback/IWebsocketCallbackListener.h"
-#include "websocket_callback/websocket_callback.h"
+
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
+
+typedef websocketpp::server<websocketpp::config::asio> server;
+
+using websocketpp::connection_hdl;
+using websocketpp::lib::placeholders::_1;
+using websocketpp::lib::placeholders::_2;
+using websocketpp::lib::bind;
 
 #include <map>
 #include <list>
@@ -13,8 +21,7 @@
 class IWebsocketServerListener;
 
 class WebsocketServer :
-    public IWebsocketServer,
-    public IWebsocketCallbackListener
+    public IWebsocketServer
 {
 public:
     WebsocketServer(int port);
@@ -23,25 +30,20 @@ public:
     //Implements IWebsocketServer interface
 public:
     void run();
-    void sendMessage(libwebsocket* wsi, const std::string& message);
+	void sendMessage(connection_hdl hdl, const std::string& message);
     void addListener(IWebsocketServerListener* listener);
     void removeListener(IWebsocketServerListener* listener);
 
-    //Implements IWebsocketCallbackListener interface
 public:
-    void onConnected(libwebsocket* wsi, struct session_data* data);
-    void onMessageReceived(libwebsocket* wsi, const char* message);
-    void onDisconnected(libwebsocket* wsi);
+	void onConnected(connection_hdl hdl);
+	void onMessageReceived(connection_hdl hdl, const char* message);
+	void onDisconnected(connection_hdl hdl);
 
 private:
 	bool b_isClosing;
-    struct libwebsocket_context* p_context;
-    struct libwebsocket_protocols m_protocols[2];
-    struct lws_context_creation_info m_info;
 
     std::list<IWebsocketServerListener*> m_listeners;
-
-    std::map<libwebsocket*, struct session_data*> m_connectedClients;
+	server m_server;
 };
 
 #endif // WEBSOCKETSERVER_H
