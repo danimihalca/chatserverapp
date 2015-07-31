@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <websocketpp\common\connection_hdl.hpp>
+#include <websocketpp/common/connection_hdl.hpp>
 
 class IWebsocketServerListener
 {

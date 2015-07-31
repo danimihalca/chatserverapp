@@ -13,17 +13,18 @@ INCLUDE_DIRECTORIES(${CHAT_UTILS_PATH})
 
 IF (WIN32)
         INCLUDE_DIRECTORIES("C:/Program Files (x86)/MySQL/Connector.C++ 1.1/include")
+        INCLUDE_DIRECTORIES("D:/thesis/libraries/boost_1_58_0/")
         SET(MYSQL_CPP_CONNECTOR_PATH "C:/Program Files (x86)/MySQL/Connector.C++ 1.1/lib/debug")
         LINK_DIRECTORIES(${MYSQL_CPP_CONNECTOR_PATH})
+        LINK_DIRECTORIES("D:/thesis/libraries/boost_1_58_0/lib32-msvc-12.0")
         add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
 ELSE()
+        SET(LIBRARIES boost_system)
         SET(LIBWEBSOCKETS_LIBRARY websockets)
 ENDIF()
 
-INCLUDE_DIRECTORIES("D:/thesis/libraries/boost_1_58_0/")
-INCLUDE_DIRECTORIES("D:/thesis/libraries/websocketpp/include")
+INCLUDE_DIRECTORIES("${WORKSPACE}/libraries/websocketpp")
 
-LINK_DIRECTORIES("D:/thesis/libraries/boost_1_58_0/lib32-msvc-12.0")
 
 
 SET(HEADER_FILES inc/ChatServer/IChatServer.h
@@ -48,9 +49,10 @@ SET(SOURCE_FILES src/main.cpp
 
 LINK_DIRECTORIES(${LIBRARY_INSTALL_PATH})
 
+SET (LIBRARIES ${LIBRARIES} ${LIBWEBSOCKETS_LIBRARY} jsoncpp mysqlcppconn)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${LIBWEBSOCKETS_LIBRARY} jsoncpp mysqlcppconn)
+target_link_libraries(${PROJECT_NAME}  ${LIBRARIES})
 
 IF(WIN32)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

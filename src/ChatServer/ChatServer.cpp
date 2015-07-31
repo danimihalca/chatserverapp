@@ -56,7 +56,7 @@ void ChatServer::onDisconnected(websocketpp::connection_hdl hdl1)
          client != m_loggedClients.end();
          ++client)
     {
-        if (client->second.hdl._Get() == hdl1._Get())
+        if (client->second.hdl.lock().get() == hdl1.lock().get())
         {
             username = client->first;
             std::cout << "Disconnected user: " << username << std::endl;
