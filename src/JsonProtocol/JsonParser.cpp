@@ -35,12 +35,10 @@ ChatClient_Action_Type JsonParser::getActionType()
     return static_cast<ChatClient_Action_Type>(m_root[ACTION].asInt());
 }
 
-UserPOD JsonParser::getUser()
+UserCredentials JsonParser::getUser()
 {
-    UserPOD user;
+    std::string username = m_root[USER][USERNAME].asString();
+    std::string password = m_root[USER][PASSWORD].asString();
 
-    user.username = m_root[USER][USERNAME].asString();
-    user.password = m_root[USER][PASSWORD].asString();
-
-    return user;
+    return UserCredentials(username,password);
 }

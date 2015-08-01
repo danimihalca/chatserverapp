@@ -7,6 +7,7 @@
 
 #include "DAO/UserDAO.h"
 
+
 ChatServer::ChatServer(int port) :
     p_websocketServer(new WebsocketServer(port)),
     p_jsonParser(new JsonParser()),
@@ -21,7 +22,7 @@ void ChatServer::run()
 }
 
 void ChatServer::onMessageReceived(websocketpp::connection_hdl hdl,
-                                   const std::string& message)
+                                   const std::string&          message)
 {
 //    try
 //    {
@@ -37,7 +38,7 @@ void ChatServer::onMessageReceived(websocketpp::connection_hdl hdl,
     {
         case CC_LOGIN_REQUEST:
         {
-            UserPOD userCredentials = p_jsonParser->getUser();
+            UserCredentials userCredentials = p_jsonParser->getUser();
             login(userCredentials, hdl);
             break;
         }
@@ -49,36 +50,43 @@ void ChatServer::onMessageReceived(websocketpp::connection_hdl hdl,
     }
 }
 
-void ChatServer::onDisconnected(websocketpp::connection_hdl hdl1)
+void ChatServer::onDisconnected(websocketpp::connection_hdl hdl)
 {
-    std::string username;
-    for (auto client = m_loggedClients.begin();
-         client != m_loggedClients.end();
-         ++client)
+//    std::string username;
+//    for (auto client = m_loggedClients.begin();
+//         client != m_loggedClients.end();
+//         ++client)
+//    {
+//        if (client->right.lock().get() == hdl1.lock().get())
+//        {
+////            username = client->first;
+//            std::cout << "Disconnected user: " << username << std::endl;
+//            m_loggedClients.erase(client);
+//            break;
+//        }
+//    }
+
+    auto user = m_loggedClients.right.find(hdl);
+    if (user != m_loggedClients.right.end())
     {
-        if (client->second.hdl.lock().get() == hdl1.lock().get())
-        {
-            username = client->first;
-            std::cout << "Disconnected user: " << username << std::endl;
-            m_loggedClients.erase(client);
-            break;
-        }
+        std::cout << "Disconnected user: " << user->second << std::endl;
+        m_loggedClients.right.erase(user);
     }
+    else
+    {
+        std::cout << "Disconnected user not found!" << std::endl;
+    }
+
 }
 
-void ChatServer::login(UserPOD user, websocketpp::connection_hdl hdl)
+void ChatServer::login(const UserCredentials&      userCredentials,
+                       websocketpp::connection_hdl hdl)
 {
     UserDAO userDao;
+//    m_loggedClients.by
 
-    if (m_loggedClients.find(user.username) != m_loggedClients.end())
-    {
-        std::string authFailedJson = p_jsonFactory->createLoginFailedJSON(
-            AUTH_ALREADY_LOGGED_IN);
-        p_websocketServer->sendMessage(hdl,authFailedJson);
-        return;
-    }
 
-    if (!userDao.isValidUser(user))
+    if (!userDao.isValidUser(userCredentials))
     {
         std::cout << "FAILED LOGIN" << std::endl;
         std::string authFailedJson = p_jsonFactory->createLoginFailedJSON(
@@ -87,9 +95,27 @@ void ChatServer::login(UserPOD user, websocketpp::connection_hdl hdl)
         return;
     }
 
-    std::cout << "Logged in user: " << user.username << std::endl;
-    m_loggedClients[user.username] = UserValues {user.id, hdl};
+    int id;
+    if (m_loggedClients.left.find(id) != m_loggedClients.left.end())
+    {
+        std::string authFailedJson = p_jsonFactory->createLoginFailedJSON(
+            AUTH_ALREADY_LOGGED_IN);
+        p_websocketServer->sendMessage(hdl,authFailedJson);
+        return;
+    }
 
-    std::string authFailedJson = p_jsonFactory->createLoginSuccessfulJSON(user);
+    std::cout << "Logged in user: " << userCredentials.getUserName() <<
+    std::endl;
+    UserDetails userDetails = userDao.getUserDetails(
+        userCredentials.getUserName());
+    m_loggedClients.insert(boost::bimap<int,
+                                        boost::bimaps::set_of<websocketpp::
+                                                              connection_hdl,
+                                                              std::owner_less<
+                                                                  websocketpp::
+                                                                  connection_hdl> > >::value_type(
+                               userDetails.getId(), hdl));
+    std::string authFailedJson = p_jsonFactory->createLoginSuccessfulJSON(
+        userDetails);
     p_websocketServer->sendMessage(hdl,authFailedJson);
 }

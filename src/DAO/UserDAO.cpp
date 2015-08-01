@@ -1,6 +1,5 @@
 #include "DAO/UserDAO.h"
 
-#include "JsonProtocol/pod.h"
 #include <debug_utils/log_debug.h>
 
 UserDAO::UserDAO() :
@@ -21,19 +20,28 @@ UserDAO::~UserDAO()
     delete p_con;
 }
 
-bool UserDAO::isValidUser(UserPOD& userCredentials)
+bool UserDAO::isValidUser(const UserCredentials& userCredentials)
 {
     sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
         "Select * from User where username=? and password=?");
-    prep_stmt->setString(1,userCredentials.username);
-    prep_stmt->setString(2,userCredentials.password);
+    prep_stmt->setString(1,userCredentials.getUserName());
+    prep_stmt->setString(2,userCredentials.getPassword());
     sql::ResultSet* res = prep_stmt->executeQuery();
 
+    return res->rowsCount() > 0;
+}
+
+UserDetails UserDAO::getUserDetails(const std::string& userName)
+{
+    sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+        "Select id, fullname from User where username=?");
+    prep_stmt->setString(1,userName);
+    sql::ResultSet* res = prep_stmt->executeQuery();
     if (res->next())
     {
-        userCredentials.id = res->getInt("id");
-        userCredentials.fullname = res->getString("fullname");
-        return true;
+        int id = res->getInt("id");
+        std::string fullName = res->getString("fullname");
+        return UserDetails(id,fullName);
     }
-    return false;
+    return UserDetails();
 }

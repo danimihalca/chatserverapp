@@ -9,21 +9,19 @@
 #include <map>
 #include <string>
 
+#include <boost/bimap.hpp>
+#include <boost/bimap/set_of.hpp>
+
 #include <websocketpp/common/connection_hdl.hpp>
 
 class IWebsocketServer;
 class IJsonParser;
 class JsonFactory;
 
-struct UserPOD;
+class UserCredentials;
 
-class ChatServer: public IChatServer, public IWebsocketServerListener
+class ChatServer : public IChatServer, public IWebsocketServerListener
 {
-    struct UserValues
-    {
-        int dbId;
-		websocketpp::connection_hdl hdl;
-    };
 
 public:
     ChatServer(int port);
@@ -34,18 +32,24 @@ public:
 
     //Implements IWebsocketServerListener interface
 public:
-	void onMessageReceived(websocketpp::connection_hdl hdl, const std::string& message);
-	void onDisconnected(websocketpp::connection_hdl hdl);
+    void onMessageReceived(websocketpp::connection_hdl hdl,
+                           const std::string&          message);
+    void onDisconnected(websocketpp::connection_hdl hdl);
 
 
 private:
-	void login(UserPOD user, websocketpp::connection_hdl hdl);
+    void login(const UserCredentials&      userCredentials,
+               websocketpp::connection_hdl hdl);
 
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;
     std::unique_ptr<IJsonParser> p_jsonParser;
     std::unique_ptr<JsonFactory> p_jsonFactory;
-    std::map<std::string, UserValues> m_loggedClients;
+    boost::bimap<int,
+                 boost::bimaps::set_of<websocketpp::connection_hdl,
+                                       std::owner_less<websocketpp::
+                                                       connection_hdl> > >
+    m_loggedClients;
 
 };
 

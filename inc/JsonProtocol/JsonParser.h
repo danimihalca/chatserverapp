@@ -17,7 +17,7 @@ public:
 public:
     void parseJsonString(const std::string& json);
     ChatClient_Action_Type getActionType();
-    UserPOD getUser();
+    UserCredentials getUser();
 
 private:
     Json::CharReader* p_reader;

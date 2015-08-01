@@ -18,13 +18,13 @@ JsonFactory::~JsonFactory()
     delete p_writer;
 }
 
-std::string JsonFactory::createLoginSuccessfulJSON(UserPOD user)
+std::string JsonFactory::createLoginSuccessfulJSON(const UserDetails& userDetails)
 {
     m_outputStream.str("");
     Json::Value root;
     root[ACTION] =CS_LOGIN_RESPONSE;
     root[AUTHENTIFICATION_STATUS] = AUTH_OK;
-    root[FULLNAME] = user.fullname;
+    root[FULLNAME] = userDetails.getFullName();
     p_writer->write(root,&m_outputStream);
 
     return m_outputStream.str();

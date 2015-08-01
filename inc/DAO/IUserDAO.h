@@ -1,13 +1,16 @@
 #ifndef IUSERDAO_H
 #define IUSERDAO_H
 
-struct UserPOD;
+#include <Model/User.h>
 
 class IUserDAO
 {
-
-    virtual bool isValidUser(UserPOD& userCredentials) = 0;
-
+public:
+    virtual bool isValidUser(const UserCredentials& userCredentials) = 0;
+    virtual UserDetails getUserDetails(const std::string& userName) = 0;
+    virtual ~IUserDAO()
+    {
+    }
 };
 
 #endif // IUSERDAO_H

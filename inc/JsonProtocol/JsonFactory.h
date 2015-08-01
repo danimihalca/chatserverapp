@@ -4,7 +4,7 @@
 #include <json/json.h>
 #include <sstream>
 
-#include "pod.h"
+#include <Model/User.h>
 #include <JsonChatProtocol/common_json_protocol.h>
 
 class JsonFactory
@@ -13,7 +13,7 @@ public:
     JsonFactory();
     ~JsonFactory();
 
-    std::string createLoginSuccessfulJSON(UserPOD user);
+    std::string createLoginSuccessfulJSON(const UserDetails& userDetails);
     std::string createLoginFailedJSON(Authentification_Status status);
 
 private:

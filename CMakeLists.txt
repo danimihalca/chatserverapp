@@ -20,7 +20,6 @@ IF (WIN32)
         add_definitions(-D_WEBSOCKETPP_CPP11_CHRONO_)
 ELSE()
         SET(LIBRARIES boost_system)
-        SET(LIBWEBSOCKETS_LIBRARY websockets)
 ENDIF()
 
 INCLUDE_DIRECTORIES("${WORKSPACE}/libraries/websocketpp")
@@ -35,7 +34,6 @@ SET(HEADER_FILES inc/ChatServer/IChatServer.h
                  inc/JsonProtocol/IJsonParser.h
                  inc/JsonProtocol/JsonParser.h
                  inc/JsonProtocol/JsonFactory.h
-                 inc/JsonProtocol/pod.h
                  inc/DAO/IUserDAO.h
                  inc/DAO/UserDAO.h)
 
@@ -49,7 +47,7 @@ SET(SOURCE_FILES src/main.cpp
 
 LINK_DIRECTORIES(${LIBRARY_INSTALL_PATH})
 
-SET (LIBRARIES ${LIBRARIES} ${LIBWEBSOCKETS_LIBRARY} jsoncpp mysqlcppconn)
+SET (LIBRARIES ${LIBRARIES} jsoncpp mysqlcppconn)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME}  ${LIBRARIES})
