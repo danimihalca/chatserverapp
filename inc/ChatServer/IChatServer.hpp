@@ -1,15 +1,16 @@
-#ifndef ICHATSERVER_H
-#define ICHATSERVER_H
+#ifndef ICHATSERVER_HPP
+#define ICHATSERVER_HPP
 
 
 class IChatServer
 {
 public:
     virtual void run() = 0;
+
     virtual ~IChatServer()
     {
     }
 };
 
-#endif // ICHATSERVER_H
+#endif // ICHATSERVER_HPP
 

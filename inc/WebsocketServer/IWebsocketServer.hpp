@@ -1,8 +1,11 @@
-#ifndef IWEBSOCKETSERVER_H
-#define IWEBSOCKETSERVER_H
+#ifndef IWEBSOCKETSERVER_HPP
+#define IWEBSOCKETSERVER_HPP
 
 #include <string>
+
 #include <websocketpp/common/connection_hdl.hpp>
+
+using websocketpp::connection_hdl;
 
 class IWebsocketServerListener;
 
@@ -10,7 +13,8 @@ class IWebsocketServer
 {
 public:
     virtual void run() = 0;
-	virtual void sendMessage(websocketpp::connection_hdl hdl, const std::string& message) = 0;
+    virtual void sendMessage(connection_hdl     hdl,
+                             const std::string& message) = 0;
     virtual void addListener(IWebsocketServerListener* listener) = 0;
     virtual void removeListener(IWebsocketServerListener* listener) = 0;
     virtual ~IWebsocketServer()
@@ -18,5 +22,5 @@ public:
     }
 };
 
-#endif // IWEBSOCKETSERVER_H
+#endif // IWEBSOCKETSERVER_HPP
 

@@ -1,14 +1,14 @@
-#ifndef USERDAO_H
-#define USERDAO_H
+#ifndef USERDAO_HPP
+#define USERDAO_HPP
 
 #include <cppconn/driver.h>
 #include <cppconn/connection.h>
 #include <cppconn/resultset.h>
 #include <cppconn/prepared_statement.h>
 
-#include "IUserDAO.h"
+#include "IUserDAO.hpp"
 
-class UserDAO: public IUserDAO
+class UserDAO : public IUserDAO
 {
 public:
     UserDAO();
@@ -23,5 +23,5 @@ private:
     sql::Connection* p_con;
 };
 
-#endif // USERDAO_H
+#endif // USERDAO_HPP
 

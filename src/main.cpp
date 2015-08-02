@@ -3,7 +3,7 @@
 
 #include <signal.h>
 
-#include "ChatServer/ChatServer.h"
+#include "ChatServer/ChatServer.hpp"
 
 bool interrupted = false;
 

@@ -1,7 +1,7 @@
-#ifndef IUSERDAO_H
-#define IUSERDAO_H
+#ifndef IUSERDAO_HPP
+#define IUSERDAO_HPP
 
-#include <Model/User.h>
+#include <Model/User.hpp>
 
 class IUserDAO
 {
@@ -13,5 +13,5 @@ public:
     }
 };
 
-#endif // IUSERDAO_H
+#endif // IUSERDAO_HPP
 

@@ -26,22 +26,23 @@ INCLUDE_DIRECTORIES("${WORKSPACE}/libraries/websocketpp")
 
 
 
-SET(HEADER_FILES inc/ChatServer/IChatServer.h
-                 inc/ChatServer/ChatServer.h
-                 inc/WebsocketServer/IWebsocketServer.h
-                 inc/WebsocketServer/IWebsocketServerListener.h
-                 inc/WebsocketServer/WebsocketServer.h
-                 inc/JsonProtocol/IJsonParser.h
-                 inc/JsonProtocol/JsonParser.h
-                 inc/JsonProtocol/JsonFactory.h
-                 inc/DAO/IUserDAO.h
-                 inc/DAO/UserDAO.h)
+SET(HEADER_FILES inc/ChatServer/IChatServer.hpp
+                 inc/ChatServer/ChatServer.hpp
+                 inc/WebsocketServer/IWebsocketServer.hpp
+                 inc/WebsocketServer/IWebsocketServerListener.hpp
+                 inc/WebsocketServer/WebsocketServer.hpp
+                 inc/JsonProtocol/IServerJsonParser.hpp
+                 inc/JsonProtocol/IServerJsonFactory.hpp
+                 inc/JsonProtocol/ServerJsonParser.hpp
+                 inc/JsonProtocol/ServerJsonFactory.hpp
+                 inc/DAO/IUserDAO.hpp
+                 inc/DAO/UserDAO.hpp)
 
 SET(SOURCE_FILES src/main.cpp
                  src/ChatServer/ChatServer.cpp
                  src/WebsocketServer/WebsocketServer.cpp
-                 src/JsonProtocol/JsonParser.cpp
-                 src/JsonProtocol/JsonFactory.cpp
+                 src/JsonProtocol/ServerJsonParser.cpp
+                 src/JsonProtocol/ServerJsonFactory.cpp
                  src/DAO/UserDAO.cpp)
 
 

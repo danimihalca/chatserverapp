@@ -1,6 +1,6 @@
-#include "DAO/UserDAO.h"
+#include "DAO/UserDAO.hpp"
 
-#include <debug_utils/log_debug.h>
+#include <debug_utils/log_debug.hpp>
 
 UserDAO::UserDAO() :
     p_con(nullptr)
