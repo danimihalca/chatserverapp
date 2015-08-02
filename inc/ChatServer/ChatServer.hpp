@@ -17,6 +17,7 @@
 class IWebsocketServer;
 class IServerJsonParser;
 class IServerJsonFactory;
+class IUserDAO;
 
 class UserCredentials;
 class UserDetails;
@@ -46,10 +47,14 @@ private:
     void tryLogInUser(const UserCredentials& userCredentials, connection_hdl hdl);
     void logInUser(const UserDetails& userDetails, connection_hdl hdl);
 
+    int getUserId(connection_hdl hdl);
+    void handleGetContactsRequest(connection_hdl hdl);
+
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;
     std::unique_ptr<IServerJsonParser> p_jsonParser;
     std::unique_ptr<IServerJsonFactory> p_jsonFactory;
+    std::unique_ptr<IUserDAO> p_userDAO;
 
     userConnectionMap m_loggedClients;
 

@@ -61,7 +61,7 @@ void WebsocketServer::sendMessage(connection_hdl     hdl,
 void WebsocketServer::onConnected(connection_hdl hdl)
 {
     asioServer::connection_ptr c = m_server.get_con_from_hdl(hdl);
-    log_debug("CONNECTED: %s\n", c->get_remote_endpoint().c_str());
+    LOG_DEBUG("CONNECTED: %s\n", c->get_remote_endpoint().c_str());
 }
 
 void WebsocketServer::onMessageReceived(
@@ -78,7 +78,7 @@ void WebsocketServer::onMessageReceived(
 void WebsocketServer::onDisconnected(connection_hdl hdl)
 {
     asioServer::connection_ptr c = m_server.get_con_from_hdl(hdl);
-    log_debug("DISCONNECTED: %s\n",c->get_remote_endpoint().c_str());
+    LOG_DEBUG("DISCONNECTED: %s\n",c->get_remote_endpoint().c_str());
     if (!b_isClosing)
     {
         for (auto listener : m_listeners)

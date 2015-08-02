@@ -18,6 +18,7 @@ public:
 public:
     std::string createLoginSuccessfulJsonString(const UserDetails& userDetails);
     std::string createLoginFailedJsonString(Authentication_Status status);
+    std::string createGetContactsResponseJsonString(const Contacts& contacts);
 
 private:
     Json::StreamWriter* p_writer;

@@ -5,7 +5,7 @@
 
 #include <JsonChatProtocol/common_json_protocol.hpp>
 
-class UserDetails;
+#include <Model/User.hpp>
 
 class IServerJsonFactory
 {
@@ -14,6 +14,8 @@ public:
         const UserDetails& userDetails) = 0;
     virtual std::string createLoginFailedJsonString(Authentication_Status status)
         = 0;
+    virtual std::string createGetContactsResponseJsonString(
+        const Contacts& contacts) = 0;
 
     virtual ~IServerJsonFactory()
     {

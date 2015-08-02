@@ -12,7 +12,8 @@
 ChatServer::ChatServer(int port) :
     p_websocketServer(new WebsocketServer(port)),
     p_jsonParser(new ServerJsonParser()),
-    p_jsonFactory(new ServerJsonFactory())
+    p_jsonFactory(new ServerJsonFactory()),
+    p_userDAO(new UserDAO())
 {
     p_websocketServer->addListener(this);
 }
@@ -28,7 +29,7 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
 
     if (!p_jsonParser->parseJsonString(message))
     {
-        log_debug("Received message: %s is invalid\n", message.c_str());
+        LOG_DEBUG("Received message: %s is invalid\n", message.c_str());
         return;
     }
 
@@ -40,6 +41,12 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
             UserCredentials userCredentials =
                 p_jsonParser->getUserCredentials();
             tryLogInUser(userCredentials, hdl);
+            break;
+        }
+
+        case GET_CONTACTS_REQUEST:
+        {
+            handleGetContactsRequest(hdl);
             break;
         }
 
@@ -55,7 +62,7 @@ void ChatServer::onDisconnected(connection_hdl hdl)
     auto user = m_loggedClients.right.find(hdl);
     if (user != m_loggedClients.right.end())
     {
-        log_debug("Disconnected user with id: %d\n", user->second);
+        LOG_DEBUG("Disconnected user with id: %d\n", user->second);
         m_loggedClients.right.erase(user);
     }
 }
@@ -68,10 +75,9 @@ bool ChatServer::isUserLoggedIn(int userId)
 void ChatServer::tryLogInUser(const UserCredentials& userCredentials,
                               connection_hdl         hdl)
 {
-    UserDAO userDao;
     std::string jsonResponse;
 
-    if (!userDao.isValidUser(userCredentials))
+    if (!p_userDAO->isValidUser(userCredentials))
     {
         jsonResponse = p_jsonFactory->createLoginFailedJsonString(
             AUTH_INVALID_CREDENTIALS);
@@ -79,7 +85,7 @@ void ChatServer::tryLogInUser(const UserCredentials& userCredentials,
         return;
     }
 
-    UserDetails userDetails = userDao.getUserDetails(
+    UserDetails userDetails = p_userDAO->getUserDetails(
         userCredentials.getUserName());
 
 
@@ -102,5 +108,26 @@ void ChatServer::logInUser(const UserDetails& userDetails, connection_hdl hdl)
     int userId = userDetails.getId();
     m_loggedClients.insert(userConnectionMap::value_type(userId, hdl));
 
-    log_debug("Logged in user with id: %d\n", userId);
+    LOG_DEBUG("Logged in user with id: %d\n", userId);
+}
+
+int ChatServer::getUserId(connection_hdl hdl)
+{
+    auto user = m_loggedClients.right.find(hdl);
+    if (user != m_loggedClients.right.end())
+    {
+        return user->second;
+    }
+    return -1;
+}
+
+void ChatServer::handleGetContactsRequest(connection_hdl hdl)
+{
+    LOG_DEBUG_METHOD;
+    int userId = getUserId(hdl);
+    Contacts contacts = p_userDAO->getContacts(userId);
+
+    std::string contactsJsonResponse = p_jsonFactory->createGetContactsResponseJsonString(contacts);
+
+    p_websocketServer->sendMessage(hdl, contactsJsonResponse);
 }

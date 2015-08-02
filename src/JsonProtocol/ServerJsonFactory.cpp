@@ -48,3 +48,30 @@ std::string ServerJsonFactory::createLoginFailedJsonString(
     return m_outputStream.str();
 }
 
+std::string ServerJsonFactory::createGetContactsResponseJsonString(
+    const Contacts& contacts)
+{
+    m_outputStream.str("");
+    Json::Value root;
+    root[ACTION] = GET_CONTACTS_RESPONSE;
+
+    Json::Value contactsJson;
+    Json::Value contactJson;
+
+    for (Contact contact: contacts)
+    {
+        contactJson.clear();
+
+        contactJson[USER_ID] = contact.getDetails().getId();
+        contactJson[USER_USERNAME] = contact.getUserName();
+        contactJson[USER_FULLNAME] = contact.getDetails().getFullName();
+        contactJson[CONTACT_ONLINE] = contact.isOnline();
+
+        contactsJson.append(contactJson);
+    }
+    root[CONTACTS] = contactsJson;
+    p_writer->write(root,&m_outputStream);
+
+    return m_outputStream.str();
+}
+
