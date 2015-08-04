@@ -18,6 +18,7 @@ public:
     bool parseJsonString(const std::string& json);
     Chat_Action_Type getActionType();
     UserCredentials getUserCredentials();
+    Message getMessage();
 
 private:
     Json::CharReader* p_reader;

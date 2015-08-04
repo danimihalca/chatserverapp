@@ -7,6 +7,8 @@
 
 #include <Model/User.hpp>
 
+class Message;
+
 class IServerJsonFactory
 {
 public:
@@ -16,6 +18,7 @@ public:
         = 0;
     virtual std::string createGetContactsResponseJsonString(
         const Contacts& contacts) = 0;
+    virtual std::string createReceiveMessageJsonString(const Message& message) = 0;
 
     virtual ~IServerJsonFactory()
     {

@@ -4,6 +4,8 @@
 
 #include <cstring>
 
+#include <debug_utils/log_debug.hpp>
+
 ServerJsonParser::ServerJsonParser()
 {
     Json::CharReaderBuilder builder;
@@ -36,4 +38,13 @@ UserCredentials ServerJsonParser::getUserCredentials()
     std::string password = m_root[USER_CREDENTIALS][USER_PASSWORD].asString();
 
     return UserCredentials(username,password);
+}
+
+Message ServerJsonParser::getMessage()
+{
+    LOG_DEBUG_METHOD;
+    int receiverID = m_root[MESSAGE][MESSAGE_RECEIVER_ID].asInt();
+    std::string messageText = m_root[MESSAGE][MESSAGE_TEXT].asString();
+
+    return Message(messageText,receiverID);
 }

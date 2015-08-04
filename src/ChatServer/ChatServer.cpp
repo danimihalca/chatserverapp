@@ -55,6 +55,12 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
             break;
         }
 
+        case SEND_MESSAGE:
+        {
+            handleSendMessage(hdl);
+            break;
+        }
+
         default:
         {
             break;
@@ -126,6 +132,16 @@ int ChatServer::getUserId(connection_hdl hdl)
     return -1;
 }
 
+websocketpp::connection_hdl ChatServer::getConnection(int userId)
+{
+    auto con = m_loggedClients.left.find(userId);
+    if (con == m_loggedClients.left.end())
+    {
+        throw std::exception();
+    }
+    return con->second;
+}
+
 void ChatServer::handleGetContactsRequest(connection_hdl hdl)
 {
     LOG_DEBUG_METHOD;
@@ -137,6 +153,28 @@ void ChatServer::handleGetContactsRequest(connection_hdl hdl)
         p_jsonFactory->createGetContactsResponseJsonString(contacts);
 
     p_websocketServer->sendMessage(hdl, contactsJsonResponse);
+}
+
+void ChatServer::handleSendMessage(websocketpp::connection_hdl hdl)
+{
+    Message message = p_jsonParser->getMessage();
+    int senderId = getUserId(hdl);
+    if (senderId != -1)
+    {
+        message.setSenderId(senderId);
+        std::string receiveMessageJson = p_jsonFactory->createReceiveMessageJsonString(message);
+        LOG_DEBUG("R:%s", receiveMessageJson.c_str());
+        try
+        {
+            connection_hdl peerHdl = getConnection(message.getReceiverId());
+
+            p_websocketServer->sendMessage(peerHdl, receiveMessageJson);
+        }
+        catch(const std::exception&)
+        {
+            LOG_DEBUG("RECEIVER NOT FOUND\n");
+        }
+    }
 }
 
 void ChatServer::setContactsOnlineStatus(Contacts& contacts)

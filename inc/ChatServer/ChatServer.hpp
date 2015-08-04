@@ -49,7 +49,10 @@ private:
     void logInUser(const UserDetails& userDetails, connection_hdl hdl);
 
     int getUserId(connection_hdl hdl);
+    connection_hdl getConnection(int userId);
+
     void handleGetContactsRequest(connection_hdl hdl);
+    void handleSendMessage(connection_hdl hdl);
     void setContactsOnlineStatus(Contacts& contacts);
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;

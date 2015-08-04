@@ -49,7 +49,6 @@ void WebsocketServer::removeListener(IWebsocketServerListener* listener)
 void WebsocketServer::run()
 {
     m_server.listen(m_port);
-    m_server.set_option();
     m_server.start_accept();
     m_server.run();
 }
@@ -74,6 +73,7 @@ void WebsocketServer::close()
 void WebsocketServer::sendMessage(connection_hdl     hdl,
                                   const std::string& message)
 {
+    LOG_DEBUG("SENDING:%s", message.c_str());
     m_server.send(hdl, message, websocketpp::frame::opcode::TEXT);
 }
 
