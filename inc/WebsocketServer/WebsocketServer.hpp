@@ -9,7 +9,7 @@
 #include <map>
 #include <list>
 #include <string>
-
+#include <set>
 
 using asioServer = websocketpp::server<websocketpp::config::asio>;
 
@@ -24,6 +24,7 @@ public:
     // Implements IWebsocketServer interface
 public:
     void run();
+    void close();
     void sendMessage(connection_hdl hdl, const std::string& message);
     void addListener(IWebsocketServerListener* listener);
     void removeListener(IWebsocketServerListener* listener);
@@ -37,6 +38,7 @@ private:
     bool b_isClosing;
     int m_port;
     std::list<IWebsocketServerListener*> m_listeners;
+    std::set<connection_hdl,std::owner_less<connection_hdl>> m_connections;
     asioServer m_server;
 };
 

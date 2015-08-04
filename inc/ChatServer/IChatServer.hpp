@@ -6,7 +6,7 @@ class IChatServer
 {
 public:
     virtual void run() = 0;
-
+    virtual void close() = 0;
     virtual ~IChatServer()
     {
     }

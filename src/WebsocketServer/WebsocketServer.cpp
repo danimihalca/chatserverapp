@@ -18,7 +18,8 @@ using websocketpp::lib::bind;
 
 WebsocketServer::WebsocketServer(int port) :
     m_port(port),
-    b_isClosing(false)
+    b_isClosing(false),
+    m_connections()
 {
     m_server.init_asio();
 
@@ -32,7 +33,7 @@ WebsocketServer::WebsocketServer(int port) :
 
 WebsocketServer::~WebsocketServer()
 {
-    b_isClosing = true;
+    close();
 }
 
 void WebsocketServer::addListener(IWebsocketServerListener* listener)
@@ -48,8 +49,26 @@ void WebsocketServer::removeListener(IWebsocketServerListener* listener)
 void WebsocketServer::run()
 {
     m_server.listen(m_port);
+    m_server.set_option();
     m_server.start_accept();
     m_server.run();
+}
+
+void WebsocketServer::close()
+{
+    LOG_DEBUG_METHOD;
+    if (!b_isClosing)
+    {
+
+        for(connection_hdl c: m_connections)
+        {
+            m_server.close(c,websocketpp::close::status::going_away,"CLOSING");
+        }
+
+        m_server.stop();
+
+        b_isClosing = true;
+    }
 }
 
 void WebsocketServer::sendMessage(connection_hdl     hdl,
@@ -60,6 +79,7 @@ void WebsocketServer::sendMessage(connection_hdl     hdl,
 
 void WebsocketServer::onConnected(connection_hdl hdl)
 {
+    m_connections.insert(hdl);
     asioServer::connection_ptr c = m_server.get_con_from_hdl(hdl);
     LOG_DEBUG("CONNECTED: %s\n", c->get_remote_endpoint().c_str());
 }
@@ -77,6 +97,7 @@ void WebsocketServer::onMessageReceived(
 
 void WebsocketServer::onDisconnected(connection_hdl hdl)
 {
+    m_connections.erase(hdl);
     asioServer::connection_ptr c = m_server.get_con_from_hdl(hdl);
     LOG_DEBUG("DISCONNECTED: %s\n",c->get_remote_endpoint().c_str());
     if (!b_isClosing)

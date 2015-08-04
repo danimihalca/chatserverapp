@@ -5,22 +5,22 @@
 
 #include "ChatServer/ChatServer.hpp"
 
-bool interrupted = false;
+
+std::unique_ptr<IChatServer> chatServer;
 
 void  INThandler(int sig)
 {
     std::cout << "Server interrupted" << std::endl;
-    interrupted = true;
+    chatServer->close();
 }
 
 int main()
 {
     signal(SIGINT, INThandler);
-    std::unique_ptr<IChatServer> chatServer(new ChatServer(9003));
+    chatServer.reset(new ChatServer(9003));
 
-    while (!interrupted)
-    {
-        chatServer->run();
-    }
+
+    chatServer->run();
+
     return 0;
 }

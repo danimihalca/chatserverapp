@@ -36,7 +36,7 @@ public:
     // Implements IChatServer interface
 public:
     void run();
-
+    void close();
     // Implements IWebsocketServerListener interface
 public:
     void onMessageReceived(connection_hdl hdl, const std::string& message);

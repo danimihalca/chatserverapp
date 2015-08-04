@@ -23,6 +23,11 @@ void ChatServer::run()
     p_websocketServer->run();
 }
 
+void ChatServer::close()
+{
+    p_websocketServer->close();
+}
+
 void ChatServer::onMessageReceived(connection_hdl     hdl,
                                    const std::string& message)
 {

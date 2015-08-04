@@ -13,6 +13,7 @@ class IWebsocketServer
 {
 public:
     virtual void run() = 0;
+    virtual void close() = 0;
     virtual void sendMessage(connection_hdl     hdl,
                              const std::string& message) = 0;
     virtual void addListener(IWebsocketServerListener* listener) = 0;
