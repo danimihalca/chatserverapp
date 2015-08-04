@@ -14,13 +14,14 @@
 
 #include <websocketpp/common/connection_hdl.hpp>
 
+#include <Model/User.hpp>
+
 class IWebsocketServer;
 class IServerJsonParser;
 class IServerJsonFactory;
 class IUserDAO;
 
-class UserCredentials;
-class UserDetails;
+
 
 class ChatServer : public IChatServer, public IWebsocketServerListener
 {
@@ -49,7 +50,7 @@ private:
 
     int getUserId(connection_hdl hdl);
     void handleGetContactsRequest(connection_hdl hdl);
-
+    void setContactsOnlineStatus(Contacts& contacts);
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;
     std::unique_ptr<IServerJsonParser> p_jsonParser;

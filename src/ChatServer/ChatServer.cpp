@@ -127,7 +127,19 @@ void ChatServer::handleGetContactsRequest(connection_hdl hdl)
     int userId = getUserId(hdl);
     Contacts contacts = p_userDAO->getContacts(userId);
 
-    std::string contactsJsonResponse = p_jsonFactory->createGetContactsResponseJsonString(contacts);
+    setContactsOnlineStatus(contacts);
+    std::string contactsJsonResponse =
+        p_jsonFactory->createGetContactsResponseJsonString(contacts);
 
     p_websocketServer->sendMessage(hdl, contactsJsonResponse);
+}
+
+void ChatServer::setContactsOnlineStatus(Contacts& contacts)
+{
+    for(Contact& contact: contacts)
+    {
+        bool isLoggedIn = isUserLoggedIn(contact.getDetails().getId());
+        LOG_DEBUG("U:%d L:%d\n",contact.getDetails().getId(), isLoggedIn);
+        contact.setOnline(isLoggedIn);
+    }
 }
