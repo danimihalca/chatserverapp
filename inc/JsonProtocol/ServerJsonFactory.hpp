@@ -20,10 +20,13 @@ public:
     std::string createLoginFailedJsonString(Authentication_Status status);
     std::string createGetContactsResponseJsonString(const Contacts& contacts);
     std::string createReceiveMessageJsonString(const Message& message);
+    std::string createContactLoggedInJsonString(int userId);
+    std::string createContactLoggedOutJsonString(int userId);
 
 private:
     Json::StreamWriter* p_writer;
     std::stringstream m_outputStream;
+
 };
 
 #endif // SERVERJSONFACTORY_HPP

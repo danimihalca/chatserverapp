@@ -70,12 +70,15 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
 
 void ChatServer::onDisconnected(connection_hdl hdl)
 {
+    notifyContactsOnOnlineStatusChanged(getUserId(hdl),false);
+
     auto user = m_loggedClients.right.find(hdl);
     if (user != m_loggedClients.right.end())
     {
         LOG_DEBUG("Disconnected user with id: %d\n", user->second);
         m_loggedClients.right.erase(user);
     }
+
 }
 
 bool ChatServer::isUserLoggedIn(int userId)
@@ -112,6 +115,8 @@ void ChatServer::tryLogInUser(const UserCredentials& userCredentials,
 
     jsonResponse = p_jsonFactory->createLoginSuccessfulJsonString(userDetails);
     p_websocketServer->sendMessage(hdl,jsonResponse);
+
+    notifyContactsOnOnlineStatusChanged(userDetails.getId(),true);
 }
 
 void ChatServer::logInUser(const UserDetails& userDetails, connection_hdl hdl)
@@ -184,5 +189,29 @@ void ChatServer::setContactsOnlineStatus(Contacts& contacts)
         bool isLoggedIn = isUserLoggedIn(contact.getDetails().getId());
         LOG_DEBUG("U:%d L:%d\n",contact.getDetails().getId(), isLoggedIn);
         contact.setOnline(isLoggedIn);
+    }
+}
+
+void ChatServer::notifyContactsOnOnlineStatusChanged(int userId, bool isOnline)
+{
+    LOG_DEBUG("U:%d O:%d\n",userId,isOnline);
+
+    std::string notificationMessage;
+    if (isOnline)
+    {
+        notificationMessage = p_jsonFactory->createContactLoggedInJsonString(userId);
+    }
+    else
+    {
+        notificationMessage = p_jsonFactory->createContactLoggedOutJsonString(userId);
+    }
+    Contacts contacts = p_userDAO->getContacts(userId);
+    for (const Contact& contact: contacts)
+    {
+        if (isUserLoggedIn(contact.getDetails().getId()))
+        {
+            LOG_DEBUG("Notify:%d\n",contact.getDetails().getId());
+            p_websocketServer->sendMessage(getConnection(contact.getDetails().getId()),notificationMessage);
+        }
     }
 }

@@ -54,6 +54,7 @@ private:
     void handleGetContactsRequest(connection_hdl hdl);
     void handleSendMessage(connection_hdl hdl);
     void setContactsOnlineStatus(Contacts& contacts);
+    void notifyContactsOnOnlineStatusChanged(int userId, bool isOnline);
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;
     std::unique_ptr<IServerJsonParser> p_jsonParser;

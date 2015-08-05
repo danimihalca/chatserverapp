@@ -15,10 +15,14 @@ public:
     virtual std::string createLoginSuccessfulJsonString(
         const UserDetails& userDetails) = 0;
     virtual std::string createLoginFailedJsonString(Authentication_Status status)
-        = 0;
+        =
+            0;
     virtual std::string createGetContactsResponseJsonString(
         const Contacts& contacts) = 0;
-    virtual std::string createReceiveMessageJsonString(const Message& message) = 0;
+    virtual std::string createReceiveMessageJsonString(const Message& message) =
+        0;
+    virtual std::string createContactLoggedInJsonString(int userId) = 0;
+    virtual std::string createContactLoggedOutJsonString(int userId) = 0;
 
     virtual ~IServerJsonFactory()
     {

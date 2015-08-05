@@ -94,3 +94,30 @@ std::string ServerJsonFactory::createReceiveMessageJsonString(const Message& mes
 
     return m_outputStream.str();
 }
+
+
+std::string ServerJsonFactory::createContactLoggedInJsonString(int userId)
+{
+    LOG_DEBUG_METHOD;
+    m_outputStream.str("");
+
+    Json::Value root;
+    root[ACTION] = CONTACT_LOGGED_IN;
+    root[USER_ID] = userId;
+
+    p_writer->write(root,&m_outputStream);
+    return m_outputStream.str();
+}
+
+std::string ServerJsonFactory::createContactLoggedOutJsonString(int userId)
+{
+    LOG_DEBUG_METHOD;
+    m_outputStream.str("");
+
+    Json::Value root;
+    root[ACTION] = CONTACT_LOGGED_OUT;
+    root[USER_ID] = userId;
+
+    p_writer->write(root,&m_outputStream);
+    return m_outputStream.str();
+}

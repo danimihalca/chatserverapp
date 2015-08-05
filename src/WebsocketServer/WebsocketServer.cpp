@@ -73,7 +73,8 @@ void WebsocketServer::close()
 void WebsocketServer::sendMessage(connection_hdl     hdl,
                                   const std::string& message)
 {
-    LOG_DEBUG("SENDING:%s", message.c_str());
+    asioServer::connection_ptr c = m_server.get_con_from_hdl(hdl);
+    LOG_DEBUG("S:%s to %s\n", message.c_str(),c->get_remote_endpoint().c_str());
     m_server.send(hdl, message, websocketpp::frame::opcode::TEXT);
 }
 
@@ -88,6 +89,8 @@ void WebsocketServer::onMessageReceived(
     connection_hdl          hdl,
     asioServer::message_ptr message)
 {
+    asioServer::connection_ptr c = m_server.get_con_from_hdl(hdl);
+//    LOG_DEBUG("R:'%s' from '%s'\n", ,c->get_remote_endpoint().c_str());
     const std::string m = message->get_payload();
     for(auto listener: m_listeners)
     {
