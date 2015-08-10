@@ -27,43 +27,45 @@ bool UserDAO::isValidUser(const UserCredentials& userCredentials)
     prep_stmt->setString(1,userCredentials.getUserName());
     prep_stmt->setString(2,userCredentials.getPassword());
     sql::ResultSet* res = prep_stmt->executeQuery();
-
+	LOG_DEBUG("VALID:%d\n", res->rowsCount());
     return res->rowsCount() > 0;
 }
 
 UserDetails UserDAO::getUserDetails(const std::string& userName)
 {
     sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
-        "Select id, fullname from User where username=?");
+        "Select id, firstname, lastname from User where username=?");
     prep_stmt->setString(1,userName);
     sql::ResultSet* res = prep_stmt->executeQuery();
     if (res->next())
     {
         int id = res->getInt("id");
-        std::string fullName = res->getString("fullname");
-        return UserDetails(id,fullName);
+        std::string firstName = res->getString("firstname");
+		std::string lastName = res->getString("lastname");
+		return UserDetails(id, firstName,lastName);
     }
     return UserDetails();
 }
 
-Contacts UserDAO::getContacts(int userId)
+std::vector<Contact> UserDAO::getContacts(int userId)
 {
     LOG_DEBUG("Getting contacts for %d\n",userId);
     sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
-        "Select User.id, User.username, User.fullname from User left join"
-        " Contact on User.id=Contact.user2Id where Contact.user1Id=?");
+        "Select User.id, User.username, User.firstname, User.lastname from User left join"
+        " ContactRelation on User.id=ContactRelation.user2Id where ContactRelation.user1Id=?");
 
     prep_stmt->setInt(1,userId);
     sql::ResultSet* res = prep_stmt->executeQuery();
 
-    Contacts contacts(res->rowsCount());
+	std::vector<Contact> contacts(res->rowsCount());
     int count = 0;
     while (res->next())
     {
         int id = res->getInt("id");
         std::string username = res->getString("username");
-        std::string fullname = res->getString("fullname");
-        contacts[count++] = Contact(id, username, fullname);
+        std::string firstname = res->getString("firstname");
+		std::string lastname = res->getString("lastname");
+		contacts[count++] = Contact(id, username, firstname,lastname);
     }
     LOG_DEBUG("No. contacts: %d\n",count);
     return contacts;

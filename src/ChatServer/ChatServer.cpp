@@ -32,32 +32,33 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
                                    const std::string& message)
 {
 
-    if (!p_jsonParser->parseJsonString(message))
+	LOG_DEBUG_METHOD;
+	if (!p_jsonParser->trySetJsonString(message))
     {
         LOG_DEBUG("Received message: %s is invalid\n", message.c_str());
         return;
     }
 
-    Chat_Action_Type actionType = p_jsonParser->getActionType();
+    REQUEST_ACTION_TYPE actionType = p_jsonParser->getActionType();
     switch(actionType)
     {
-        case LOGIN_REQUEST:
+        case REQUEST_LOGIN:
         {
-            UserCredentials userCredentials =
-                p_jsonParser->getUserCredentials();
-            tryLogInUser(userCredentials, hdl);
+			LoginRequestJson requestJson = p_jsonParser->tryGetLoginRequestJson();
+			tryLogInUser(requestJson, hdl);
             break;
         }
 
-        case GET_CONTACTS_REQUEST:
+        case REQUEST_GET_CONTACTS:
         {
             handleGetContactsRequest(hdl);
             break;
         }
 
-        case SEND_MESSAGE:
+        case REQUEST_SEND_MESSAGE:
         {
-            handleSendMessage(hdl);
+			SendMessageJson requestJson = p_jsonParser->tryGetSendMessageJson();
+			handleSendMessage(requestJson, hdl);
             break;
         }
 
@@ -86,10 +87,13 @@ bool ChatServer::isUserLoggedIn(int userId)
     return (m_loggedClients.left.find(userId) != m_loggedClients.left.end());
 }
 
-void ChatServer::tryLogInUser(const UserCredentials& userCredentials,
-                              connection_hdl         hdl)
+void ChatServer::tryLogInUser(const LoginRequestJson& requestJson,
+                              connection_hdl          hdl)
 {
-    std::string jsonResponse;
+	LOG_DEBUG_METHOD;
+	const UserCredentials& userCredentials = requestJson.getUserCredentials();
+	
+	std::string jsonResponse;
 
     if (!p_userDAO->isValidUser(userCredentials))
     {
@@ -151,7 +155,7 @@ void ChatServer::handleGetContactsRequest(connection_hdl hdl)
 {
     LOG_DEBUG_METHOD;
     int userId = getUserId(hdl);
-    Contacts contacts = p_userDAO->getContacts(userId);
+	std::vector<Contact>& contacts = p_userDAO->getContacts(userId);
 
     setContactsOnlineStatus(contacts);
     std::string contactsJsonResponse =
@@ -160,9 +164,9 @@ void ChatServer::handleGetContactsRequest(connection_hdl hdl)
     p_websocketServer->sendMessage(hdl, contactsJsonResponse);
 }
 
-void ChatServer::handleSendMessage(websocketpp::connection_hdl hdl)
+void ChatServer::handleSendMessage(const SendMessageJson& requestJson, websocketpp::connection_hdl hdl)
 {
-    Message message = p_jsonParser->getMessage();
+	Message message = requestJson.getMessage();
     int senderId = getUserId(hdl);
     if (senderId != -1)
     {
@@ -182,13 +186,16 @@ void ChatServer::handleSendMessage(websocketpp::connection_hdl hdl)
     }
 }
 
-void ChatServer::setContactsOnlineStatus(Contacts& contacts)
+void ChatServer::setContactsOnlineStatus(std::vector<Contact>& contacts)
 {
     for(Contact& contact: contacts)
     {
-        bool isLoggedIn = isUserLoggedIn(contact.getDetails().getId());
-        LOG_DEBUG("U:%d L:%d\n",contact.getDetails().getId(), isLoggedIn);
-        contact.setOnline(isLoggedIn);
+        bool isLoggedIn = isUserLoggedIn(contact.getId());
+        //LOG_DEBUG("U:%d L:%d\n",contact.getDetails().getId(), isLoggedIn);
+		if (isLoggedIn)
+		{
+			contact.setState(ONLINE);
+		}
     }
 }
 
@@ -199,19 +206,19 @@ void ChatServer::notifyContactsOnOnlineStatusChanged(int userId, bool isOnline)
     std::string notificationMessage;
     if (isOnline)
     {
-        notificationMessage = p_jsonFactory->createContactLoggedInJsonString(userId);
+		notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId,ONLINE);
     }
     else
     {
-        notificationMessage = p_jsonFactory->createContactLoggedOutJsonString(userId);
+		notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId,OFFLINE);
     }
-    Contacts contacts = p_userDAO->getContacts(userId);
-    for (const Contact& contact: contacts)
+    const std::vector<Contact>& contacts = p_userDAO->getContacts(userId);
+	for (auto contact : contacts)
     {
-        if (isUserLoggedIn(contact.getDetails().getId()))
+        if (isUserLoggedIn(contact.getId()))
         {
-            LOG_DEBUG("Notify:%d\n",contact.getDetails().getId());
-            p_websocketServer->sendMessage(getConnection(contact.getDetails().getId()),notificationMessage);
+            LOG_DEBUG("Notify:%d\n",contact.getId());
+            p_websocketServer->sendMessage(getConnection(contact.getId()),notificationMessage);
         }
     }
 }

@@ -16,6 +16,9 @@
 
 #include <Model/User.hpp>
 
+#include <JsonChatProtocol/json_request/LoginRequestJson.hpp>
+#include <JsonChatProtocol/json_request/SendMessageJson.hpp>
+
 class IWebsocketServer;
 class IServerJsonParser;
 class IServerJsonFactory;
@@ -45,15 +48,15 @@ public:
 
 private:
     bool isUserLoggedIn(int userId);
-    void tryLogInUser(const UserCredentials& userCredentials, connection_hdl hdl);
+	void tryLogInUser(const LoginRequestJson&, connection_hdl hdl);
     void logInUser(const UserDetails& userDetails, connection_hdl hdl);
 
     int getUserId(connection_hdl hdl);
     connection_hdl getConnection(int userId);
 
     void handleGetContactsRequest(connection_hdl hdl);
-    void handleSendMessage(connection_hdl hdl);
-    void setContactsOnlineStatus(Contacts& contacts);
+	void handleSendMessage(const SendMessageJson& requestJson, connection_hdl hdl);
+	void setContactsOnlineStatus(std::vector<Contact>& contacts);
     void notifyContactsOnOnlineStatusChanged(int userId, bool isOnline);
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;

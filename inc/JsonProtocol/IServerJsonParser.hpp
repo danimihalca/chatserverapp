@@ -7,14 +7,19 @@
 #include <Model/User.hpp>
 #include <Model/Message.hpp>
 
+#include <JsonChatProtocol/json_request/LoginRequestJson.hpp>
+#include <JsonChatProtocol/json_request/RequestContactsJson.hpp>
+#include <JsonChatProtocol/json_request/SendMessageJson.hpp>
+
 class IServerJsonParser
 {
 public:
-    virtual bool parseJsonString(const std::string& json) = 0;
-    virtual Chat_Action_Type getActionType() = 0;
-    virtual UserCredentials getUserCredentials() = 0;
-    virtual Message getMessage() = 0;
-
+	virtual bool trySetJsonString(const std::string& json) = 0;
+    virtual REQUEST_ACTION_TYPE getActionType() = 0;
+	
+	virtual LoginRequestJson tryGetLoginRequestJson() = 0;
+	//virtual RequestContactsJson tryGetRequestContactsJson() = 0;
+	virtual SendMessageJson tryGetSendMessageJson() = 0;
     virtual ~IServerJsonParser()
     {
     }

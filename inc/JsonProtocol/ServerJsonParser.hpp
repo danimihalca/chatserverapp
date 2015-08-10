@@ -15,10 +15,12 @@ public:
 
     // Implements IServerJsonParser interface
 public:
-    bool parseJsonString(const std::string& json);
-    Chat_Action_Type getActionType();
-    UserCredentials getUserCredentials();
-    Message getMessage();
+	bool trySetJsonString(const std::string& json);
+    REQUEST_ACTION_TYPE getActionType();
+	
+	LoginRequestJson tryGetLoginRequestJson();
+	//RequestContactsJson tryGetRequestContactsJson();
+	SendMessageJson tryGetSendMessageJson();
 
 private:
     Json::CharReader* p_reader;

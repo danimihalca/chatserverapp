@@ -18,7 +18,7 @@ public:
 public:
     bool isValidUser(const UserCredentials& userCredentials);
     UserDetails getUserDetails(const std::string& userName);
-    Contacts getContacts(int userId);
+	std::vector<Contact> getContacts(int userId);
 
 private:
     sql::Connection* p_con;

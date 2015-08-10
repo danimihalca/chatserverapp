@@ -23,40 +23,53 @@ ServerJsonFactory::~ServerJsonFactory()
 std::string ServerJsonFactory::createLoginSuccessfulJsonString(
     const UserDetails& userDetails)
 {
-    m_outputStream.str("");
+	LOG_DEBUG_METHOD;
+	m_outputStream.str("");
     Json::Value root;
-    root[ACTION] = LOGIN_RESPONSE;
-    root[AUTHENTICATION_STATUS] = AUTH_SUCCESSFUL;
+    root[RESPONSE_ACTION] = RESPONSE_LOGIN;
+
+	Json::Value content;
+
+	content[AUTHENTICATION_STATUS] = AUTH_SUCCESSFUL;
 
     Json::Value userDetailsJson;
-    userDetailsJson[USER_ID] = userDetails.getId();
-    userDetailsJson[USER_FULLNAME] = userDetails.getFullName();
+    userDetailsJson[ID] = userDetails.getId();
+    userDetailsJson[FIRSTNAME] = userDetails.getFirstName();
+	userDetailsJson[LASTNAME] = userDetails.getLastName();
 
-    root[USER_DETAILS] = userDetailsJson;
+	content[USER_DETAILS] = userDetailsJson;
+
+	root[CONTENT] = content;
+
     p_writer->write(root,&m_outputStream);
 
     return m_outputStream.str();
 }
 
 std::string ServerJsonFactory::createLoginFailedJsonString(
-    Authentication_Status status)
+    AUTH_STATUS status)
 {
     m_outputStream.str("");
     Json::Value root;
-    root[ACTION] = LOGIN_RESPONSE;
-    root[AUTHENTICATION_STATUS] = status;
-    p_writer->write(root,&m_outputStream);
+	root[RESPONSE_ACTION] = RESPONSE_LOGIN;
+	Json::Value content;
+	
+	content[AUTHENTICATION_STATUS] = status;
+	root[CONTENT] = content;
+	
+	p_writer->write(root, &m_outputStream);
 
     return m_outputStream.str();
 }
 
 std::string ServerJsonFactory::createGetContactsResponseJsonString(
-    const Contacts& contacts)
+	const std::vector<Contact>& contacts)
 {
     m_outputStream.str("");
     Json::Value root;
-    root[ACTION] = GET_CONTACTS_RESPONSE;
+	root[RESPONSE_ACTION] = RESPONSE_GET_CONTACTS;
 
+	Json::Value content;
     Json::Value contactsJson;
     Json::Value contactJson;
 
@@ -64,15 +77,17 @@ std::string ServerJsonFactory::createGetContactsResponseJsonString(
     {
         contactJson.clear();
 
-        contactJson[USER_ID] = contact.getDetails().getId();
-        contactJson[USER_USERNAME] = contact.getUserName();
-        contactJson[USER_FULLNAME] = contact.getDetails().getFullName();
-        contactJson[CONTACT_ONLINE] = contact.isOnline();
+        contactJson[ID] = contact.getId();
+        contactJson[USERNAME] = contact.getUserName();
+        contactJson[FIRSTNAME] = contact.getFirstName();
+		contactJson[LASTNAME] = contact.getLastName();
+		contactJson[STATE] = contact.getState();
 
         contactsJson.append(contactJson);
     }
-    root[CONTACTS] = contactsJson;
-    p_writer->write(root,&m_outputStream);
+	content[CONTACTS] = contactsJson;
+	root[CONTENT] = content;
+	p_writer->write(root, &m_outputStream);
 
     return m_outputStream.str();
 }
@@ -82,41 +97,37 @@ std::string ServerJsonFactory::createReceiveMessageJsonString(const Message& mes
     LOG_DEBUG_METHOD;
     m_outputStream.str("");
     Json::Value root;
-    root[ACTION] = RECEIVE_MESSAGE;
+	Json::Value content;
+	root[RESPONSE_ACTION] = RESPONSE_SEND_MESSAGE;
 
     Json::Value messageJson;
 
-    messageJson[MESSAGE_SENDER_ID] = message.getSenderId();
+    messageJson[SENDER_ID] = message.getSenderId();
     messageJson[MESSAGE_TEXT] = message.getMessageText();
 
-    root[MESSAGE] = messageJson;
-    p_writer->write(root,&m_outputStream);
+	content[MESSAGE] = messageJson;
+	root[CONTENT] = content;
+	p_writer->write(root, &m_outputStream);
 
     return m_outputStream.str();
 }
 
 
-std::string ServerJsonFactory::createContactLoggedInJsonString(int userId)
+std::string ServerJsonFactory::createContactStateChangedJsonString(int userId, CONTACT_STATE state)
 {
     LOG_DEBUG_METHOD;
     m_outputStream.str("");
 
     Json::Value root;
-    root[ACTION] = CONTACT_LOGGED_IN;
-    root[USER_ID] = userId;
+	Json::Value content;
+	Json::Value contact;
+	root[RESPONSE_ACTION] = RESPONSE_CONTACT_STATE_CHANGED;
 
-    p_writer->write(root,&m_outputStream);
-    return m_outputStream.str();
-}
+	contact[ID] = userId;
+	contact[STATE] = state;
 
-std::string ServerJsonFactory::createContactLoggedOutJsonString(int userId)
-{
-    LOG_DEBUG_METHOD;
-    m_outputStream.str("");
-
-    Json::Value root;
-    root[ACTION] = CONTACT_LOGGED_OUT;
-    root[USER_ID] = userId;
+	content[CONTACT] = contact;
+	root[CONTENT] = content;
 
     p_writer->write(root,&m_outputStream);
     return m_outputStream.str();

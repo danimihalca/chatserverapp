@@ -17,11 +17,11 @@ public:
     // Implements IServerJsonFactory interface
 public:
     std::string createLoginSuccessfulJsonString(const UserDetails& userDetails);
-    std::string createLoginFailedJsonString(Authentication_Status status);
-    std::string createGetContactsResponseJsonString(const Contacts& contacts);
+	std::string createLoginFailedJsonString(AUTH_STATUS status);
+	std::string createGetContactsResponseJsonString(const std::vector<Contact>& contacts);
     std::string createReceiveMessageJsonString(const Message& message);
-    std::string createContactLoggedInJsonString(int userId);
-    std::string createContactLoggedOutJsonString(int userId);
+	std::string createContactStateChangedJsonString(int userId, CONTACT_STATE state);
+
 
 private:
     Json::StreamWriter* p_writer;

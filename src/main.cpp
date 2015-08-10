@@ -5,6 +5,7 @@
 
 #include "ChatServer/ChatServer.hpp"
 
+#include <C:\Program Files (x86)\Visual Leak Detector\include\vld.h> 
 
 std::unique_ptr<IChatServer> chatServer;
 
