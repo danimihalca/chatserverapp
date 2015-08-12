@@ -89,24 +89,59 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
 
 void ChatServer::handleAddContact(const AddContactJson& requestJson, connection_hdl hdl)
 {
-	const std::string& userName = requestJson.getUserName();
-	//TODO: get requester's userName (first id from hdl, the userName from dao)
-	std::string responseJson = p_jsonFactory->createAddingByContactJsonString("ass");
+	const std::string& acceptorUserName = requestJson.getUserName();
+	int initiatorId = getUserId(hdl);
+	if (initiatorId != -1)
+	{
+		BaseUser initiator = p_userDAO->getBaseUser(initiatorId);
+		BaseUser acceptor = p_userDAO->getBaseUser(acceptorUserName);
+		if (acceptor.getId() == -1)
+		{
+			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, false);
+			p_websocketServer->sendMessage(hdl, responseJson);
+		}
+		else
+		{
+			std::string responseJson = p_jsonFactory->createAddingByContactJsonString(initiator.getUserName());
+			p_websocketServer->sendMessage(getConnection(acceptor.getId()), responseJson);
+		}
+	}
 }
 
 void ChatServer::handleAddContactResolution(const AddContactResolutionJson& requestJson, connection_hdl hdl)
 {
-	const std::string& userName = requestJson.getUserName();
+	const std::string& initiatorUserName = requestJson.getUserName();
+	BaseUser initiator = p_userDAO->getBaseUser(initiatorUserName);
+	BaseUser acceptor = p_userDAO->getBaseUser(getUserId(hdl));
+
 	bool accepted = requestJson.hasAccepted();
 	if (accepted)
 	{
+		p_userDAO->addContactRelation(initiator.getId(), acceptor.getId());
+		p_userDAO->addContactRelation(acceptor.getId(), initiator.getId());
+
+
+		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), true);
+		p_websocketServer->sendMessage(getConnection(initiator.getId()), responseJson);
+
+
+		Contact initiatorContact(initiator, ONLINE);
+		Contact acceptorContact(acceptor, ONLINE);
+
+		std::string initiatorJson = p_jsonFactory->createGetContactsResponseJsonString(std::vector<Contact>{acceptor});
+		p_websocketServer->sendMessage(getConnection(initiator.getId()), initiatorJson);
+
+		std::string acceptorJson = p_jsonFactory->createGetContactsResponseJsonString(std::vector<Contact>{initiator});
+		p_websocketServer->sendMessage(hdl, acceptorJson);
+
 		//add in db
 		//send confirmation to requester
 		//send contacts list to requester and accepter
 	}
 	else
 	{
-		//send decline to requester
+		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), false);
+		p_websocketServer->sendMessage(hdl, responseJson);
 	}
 
 }
@@ -114,6 +149,20 @@ void ChatServer::handleAddContactResolution(const AddContactResolutionJson& requ
 void ChatServer::handleRemoveContact(const RemoveContactJson& requestJson, connection_hdl hdl)
 {
 	int contactId = requestJson.getContactId();
+	int requesterId = getUserId(hdl);
+	if (p_userDAO->isContactRelation(contactId, requesterId))
+	{
+		p_userDAO->removeContactRelation(contactId, requesterId);
+		p_userDAO->removeContactRelation(requesterId, contactId);
+
+		if (isUserLoggedIn(contactId))
+		{
+			std::string responseJson = p_jsonFactory->createRemovedByContactJsonString(requesterId);
+			p_websocketServer->sendMessage(getConnection(contactId), responseJson);
+		}
+	}
+
+
 	//get remover's id from hdl
 	//remove relation from dao
 	//send notification to removed

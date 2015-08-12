@@ -19,6 +19,11 @@ public:
     bool isValidUser(const UserCredentials& userCredentials);
     UserDetails getUserDetails(const std::string& userName);
 	std::vector<Contact> getContacts(int userId);
+	BaseUser getBaseUser(int userId);
+	BaseUser getBaseUser(const std::string& userName);
+	void addContactRelation(int user1Id, int user2Id);
+	void removeContactRelation(int user1Id, int user2Id);
+	bool isContactRelation(int user1Id, int user2Id);
 
 private:
     sql::Connection* p_con;

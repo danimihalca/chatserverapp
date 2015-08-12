@@ -138,7 +138,7 @@ std::string ServerJsonFactory::createRemovedByContactJsonString(int contactId)
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[REQUEST_ACTION] = RESPONSE_REMOVE_CONTACT;
+	root[RESPONSE_ACTION] = RESPONSE_REMOVE_CONTACT;
 	Json::Value content;
 
 	content[ID] = contactId;
@@ -152,7 +152,7 @@ std::string ServerJsonFactory::createAddingByContactJsonString(const std::string
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[REQUEST_ACTION] = RESPONSE_ADD_CONTACT;
+	root[RESPONSE_ACTION] = RESPONSE_ADD_CONTACT;
 	Json::Value content;
 
 	content[USERNAME] = userName;
@@ -166,7 +166,7 @@ std::string ServerJsonFactory::createAddContactResponseJsonString(const std::str
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[REQUEST_ACTION] = REQUEST_ADD_CONTACT_RESOLUTION;
+	root[RESPONSE_ACTION] = REQUEST_ADD_CONTACT_RESOLUTION;
 	Json::Value content;
 
 	content[USERNAME] = userName;

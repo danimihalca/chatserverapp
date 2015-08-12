@@ -28,7 +28,9 @@ bool UserDAO::isValidUser(const UserCredentials& userCredentials)
     prep_stmt->setString(2,userCredentials.getPassword());
     sql::ResultSet* res = prep_stmt->executeQuery();
 	LOG_DEBUG("VALID:%d\n", res->rowsCount());
-    return res->rowsCount() > 0;
+	bool valid = res->rowsCount() > 0;
+	prep_stmt->close();
+    return valid;
 }
 
 UserDetails UserDAO::getUserDetails(const std::string& userName)
@@ -42,9 +44,11 @@ UserDetails UserDAO::getUserDetails(const std::string& userName)
         int id = res->getInt("id");
         std::string firstName = res->getString("firstname");
 		std::string lastName = res->getString("lastname");
-		return UserDetails(id, firstName,lastName);
+		prep_stmt->close();
+		return UserDetails(id, firstName, lastName);
     }
-    return UserDetails();
+	prep_stmt->close();
+	return UserDetails();
 }
 
 std::vector<Contact> UserDAO::getContacts(int userId)
@@ -67,7 +71,88 @@ std::vector<Contact> UserDAO::getContacts(int userId)
 		std::string lastname = res->getString("lastname");
 		contacts[count++] = Contact(id, username, firstname,lastname);
     }
-    LOG_DEBUG("No. contacts: %d\n",count);
+	prep_stmt->close();
+	LOG_DEBUG("No. contacts: %d\n", count);
     return contacts;
 
+}
+BaseUser UserDAO::getBaseUser(int userId)
+{
+	LOG_DEBUG("Geting user with  with id %d\n", userId);
+	BaseUser user;
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"Select id, username, firstname, lastname from User where userId=?");
+
+	prep_stmt->setInt(1, userId);
+	sql::ResultSet* res = prep_stmt->executeQuery();
+
+	std::vector<Contact> contacts(res->rowsCount());
+	int count = 0;
+	if (res->next())
+	{
+		user.setId(res->getInt("id"));
+		user.setUserName(res->getString("username"));
+		user.setFirstName(res->getString("firstname"));
+		user.setLastName(res->getString("lastname"));
+	}
+	prep_stmt->close();
+	return user;
+}
+
+BaseUser UserDAO::getBaseUser(const std::string& userName)
+{
+	LOG_DEBUG("Geting user with  with username %d\n", userName.c_str());
+	BaseUser user;
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"Select id, username, firstname, lastname from User where username=?");
+
+	prep_stmt->setString(1, userName);
+	sql::ResultSet* res = prep_stmt->executeQuery();
+
+	std::vector<Contact> contacts(res->rowsCount());
+	int count = 0;
+	if (res->next())
+	{
+		user.setId(res->getInt("id"));
+		user.setUserName(res->getString("username"));
+		user.setFirstName(res->getString("firstname"));
+		user.setLastName(res->getString("lastname"));
+	}
+	else
+	{
+		user.setId(-1);
+	}
+	prep_stmt->close();
+	return user;
+}
+
+void UserDAO::addContactRelation(int user1Id, int user2Id)
+{
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"insert into contactrelation (user1Id, userd2id) values (?, ?)");
+	prep_stmt->setInt(1, user1Id);
+	prep_stmt->setInt(2, user2Id);
+	prep_stmt->executeUpdate();
+	prep_stmt->close();
+}
+
+void UserDAO::removeContactRelation(int user1Id, int user2Id)
+{
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"delete from ContactRelation where user1Id=? and user2id=?");
+	prep_stmt->setInt(1, user1Id);
+	prep_stmt->setInt(2, user2Id);
+	prep_stmt->executeUpdate();
+	prep_stmt->close();
+}
+bool  UserDAO::isContactRelation(int user1Id, int user2Id)
+{
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"select id from ContactRelation where user1Id=? and user2id=?");
+	prep_stmt->setInt(1, user1Id);
+	prep_stmt->setInt(2, user2Id);
+	prep_stmt->executeQuery();
+		bool contactrelation = prep_stmt->executeQuery()->rowsCount() > 0;
+		prep_stmt->close();
+	return (contactrelation);
 }
