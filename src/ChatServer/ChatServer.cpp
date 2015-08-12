@@ -141,7 +141,7 @@ void ChatServer::handleAddContactResolution(const AddContactResolutionJson& requ
 	else
 	{
 		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), false);
-		p_websocketServer->sendMessage(hdl, responseJson);
+		p_websocketServer->sendMessage(getConnection(initiator.getId()), responseJson);
 	}
 
 }
