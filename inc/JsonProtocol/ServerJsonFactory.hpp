@@ -22,6 +22,9 @@ public:
     std::string createReceiveMessageJsonString(const Message& message);
 	std::string createContactStateChangedJsonString(int userId, CONTACT_STATE state);
 
+	std::string createRemovedByContactJsonString(int contactId);
+	std::string createAddingByContactJsonString(const std::string& userName);
+	std::string createAddContactResponseJsonString(const std::string& userName, bool accepted);
 
 private:
     Json::StreamWriter* p_writer;

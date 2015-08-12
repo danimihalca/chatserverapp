@@ -22,6 +22,10 @@ public:
 	//RequestContactsJson tryGetRequestContactsJson();
 	SendMessageJson tryGetSendMessageJson();
 
+	AddContactJson tryGetAddContactJson();
+	AddContactResolutionJson tryGetAddContactResolutionJson();
+	RemoveContactJson tryGetRemoveContactJson();
+
 private:
     Json::CharReader* p_reader;
     Json::Value m_root;

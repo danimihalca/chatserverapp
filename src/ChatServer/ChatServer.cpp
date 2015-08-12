@@ -62,11 +62,61 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
             break;
         }
 
+		case REQUEST_ADD_CONTACT:
+		{
+			handleAddContact(p_jsonParser->tryGetAddContactJson(), hdl);
+			break;
+		}
+
+		case REQUEST_ADD_CONTACT_RESOLUTION:
+		{
+			handleAddContactResolution(p_jsonParser->tryGetAddContactResolutionJson(), hdl);
+			break;
+		}
+
+		case REQUEST_REMOVE_CONTACT:
+		{
+			handleRemoveContact(p_jsonParser->tryGetRemoveContactJson(), hdl);
+			break;
+		}
+
         default:
         {
             break;
         }
     }
+}
+
+void ChatServer::handleAddContact(const AddContactJson& requestJson, connection_hdl hdl)
+{
+	const std::string& userName = requestJson.getUserName();
+	//TODO: get requester's userName (first id from hdl, the userName from dao)
+	std::string responseJson = p_jsonFactory->createAddingByContactJsonString("ass");
+}
+
+void ChatServer::handleAddContactResolution(const AddContactResolutionJson& requestJson, connection_hdl hdl)
+{
+	const std::string& userName = requestJson.getUserName();
+	bool accepted = requestJson.hasAccepted();
+	if (accepted)
+	{
+		//add in db
+		//send confirmation to requester
+		//send contacts list to requester and accepter
+	}
+	else
+	{
+		//send decline to requester
+	}
+
+}
+
+void ChatServer::handleRemoveContact(const RemoveContactJson& requestJson, connection_hdl hdl)
+{
+	int contactId = requestJson.getContactId();
+	//get remover's id from hdl
+	//remove relation from dao
+	//send notification to removed
 }
 
 void ChatServer::onDisconnected(connection_hdl hdl)
@@ -201,24 +251,28 @@ void ChatServer::setContactsOnlineStatus(std::vector<Contact>& contacts)
 
 void ChatServer::notifyContactsOnOnlineStatusChanged(int userId, bool isOnline)
 {
-    LOG_DEBUG("U:%d O:%d\n",userId,isOnline);
+	if (userId != -1)
+	{
+		LOG_DEBUG("U:%d O:%d\n", userId, isOnline);
 
-    std::string notificationMessage;
-    if (isOnline)
-    {
-		notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId,ONLINE);
-    }
-    else
-    {
-		notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId,OFFLINE);
-    }
-    const std::vector<Contact>& contacts = p_userDAO->getContacts(userId);
-	for (auto contact : contacts)
-    {
-        if (isUserLoggedIn(contact.getId()))
-        {
-            LOG_DEBUG("Notify:%d\n",contact.getId());
-            p_websocketServer->sendMessage(getConnection(contact.getId()),notificationMessage);
-        }
-    }
+		std::string notificationMessage;
+		if (isOnline)
+		{
+			notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId, ONLINE);
+		}
+		else
+		{
+			notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId, OFFLINE);
+		}
+		const std::vector<Contact>& contacts = p_userDAO->getContacts(userId);
+		for (auto contact : contacts)
+		{
+			if (isUserLoggedIn(contact.getId()))
+			{
+				LOG_DEBUG("Notify:%d\n", contact.getId());
+				p_websocketServer->sendMessage(getConnection(contact.getId()), notificationMessage);
+			}
+		}
+	}
+
 }

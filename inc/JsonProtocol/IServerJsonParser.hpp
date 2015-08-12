@@ -10,6 +10,9 @@
 #include <JsonChatProtocol/json_request/LoginRequestJson.hpp>
 #include <JsonChatProtocol/json_request/RequestContactsJson.hpp>
 #include <JsonChatProtocol/json_request/SendMessageJson.hpp>
+#include <JsonChatProtocol/json_request/RemoveContactJson.hpp>
+#include <JsonChatProtocol/json_request/AddContactJson.hpp>
+#include <JsonChatProtocol/json_request/AddContactResolutionJson.hpp>
 
 class IServerJsonParser
 {
@@ -20,6 +23,12 @@ public:
 	virtual LoginRequestJson tryGetLoginRequestJson() = 0;
 	//virtual RequestContactsJson tryGetRequestContactsJson() = 0;
 	virtual SendMessageJson tryGetSendMessageJson() = 0;
+
+	virtual AddContactJson tryGetAddContactJson() = 0;
+	virtual AddContactResolutionJson tryGetAddContactResolutionJson() = 0;
+	virtual RemoveContactJson tryGetRemoveContactJson() = 0;
+
+
     virtual ~IServerJsonParser()
     {
     }

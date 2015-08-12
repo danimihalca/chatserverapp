@@ -67,6 +67,38 @@ SendMessageJson ServerJsonParser::tryGetSendMessageJson()
 	return requestJson;
 }
 
+
+AddContactJson  ServerJsonParser::tryGetAddContactJson()
+{
+	Json::Value content = m_root[CONTENT];
+
+	std::string userName = content[USERNAME].asString();
+
+	AddContactJson requestJson(userName);
+
+	return requestJson;
+}
+AddContactResolutionJson  ServerJsonParser::tryGetAddContactResolutionJson()
+{
+	Json::Value content = m_root[CONTENT];
+
+	std::string userName = content[USERNAME].asString();
+	bool accepted = content["accepted"].asBool();
+	AddContactResolutionJson requestJson(userName, accepted);
+
+	return requestJson;
+}
+RemoveContactJson  ServerJsonParser::tryGetRemoveContactJson()
+{
+	Json::Value content = m_root[CONTENT];
+
+	int contactId = content[ID].asInt();
+
+	RemoveContactJson requestJson(contactId);
+
+	return requestJson;
+}
+
 //UserCredentials ServerJsonParser::getUserCredentials()
 //{
 //    std::string username = m_root[USER_CREDENTIALS][USER_USERNAME].asString();

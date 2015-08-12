@@ -19,6 +19,10 @@
 #include <JsonChatProtocol/json_request/LoginRequestJson.hpp>
 #include <JsonChatProtocol/json_request/SendMessageJson.hpp>
 
+#include <JsonChatProtocol/json_request/RemoveContactJson.hpp>
+#include <JsonChatProtocol/json_request/AddContactJson.hpp>
+#include <JsonChatProtocol/json_request/AddContactResolutionJson.hpp>
+
 class IWebsocketServer;
 class IServerJsonParser;
 class IServerJsonFactory;
@@ -47,6 +51,10 @@ public:
 
 
 private:
+	void handleAddContact(const AddContactJson& requestJson, connection_hdl hdl);
+	void handleAddContactResolution(const AddContactResolutionJson& requestJson, connection_hdl hdl);
+	void handleRemoveContact(const RemoveContactJson& requestJson, connection_hdl hdl);
+
     bool isUserLoggedIn(int userId);
 	void tryLogInUser(const LoginRequestJson&, connection_hdl hdl);
     void logInUser(const UserDetails& userDetails, connection_hdl hdl);
