@@ -166,7 +166,7 @@ std::string ServerJsonFactory::createAddContactResponseJsonString(const std::str
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[RESPONSE_ACTION] = REQUEST_ADD_CONTACT_RESOLUTION;
+	root[RESPONSE_ACTION] = RESPONSE_ADD_CONTACT_RESOLUTION;
 	Json::Value content;
 
 	content[USERNAME] = userName;

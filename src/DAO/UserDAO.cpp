@@ -81,7 +81,7 @@ BaseUser UserDAO::getBaseUser(int userId)
 	LOG_DEBUG("Geting user with  with id %d\n", userId);
 	BaseUser user;
 	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
-		"Select id, username, firstname, lastname from User where userId=?");
+		"Select id, username, firstname, lastname from User where id=?");
 
 	prep_stmt->setInt(1, userId);
 	sql::ResultSet* res = prep_stmt->executeQuery();
@@ -90,7 +90,8 @@ BaseUser UserDAO::getBaseUser(int userId)
 	int count = 0;
 	if (res->next())
 	{
-		user.setId(res->getInt("id"));
+		auto idd = res->getInt("id");
+		user.setId(idd);
 		user.setUserName(res->getString("username"));
 		user.setFirstName(res->getString("firstname"));
 		user.setLastName(res->getString("lastname"));
@@ -113,7 +114,8 @@ BaseUser UserDAO::getBaseUser(const std::string& userName)
 	int count = 0;
 	if (res->next())
 	{
-		user.setId(res->getInt("id"));
+		auto idd = res->getInt("id");
+		user.setId(idd);
 		user.setUserName(res->getString("username"));
 		user.setFirstName(res->getString("firstname"));
 		user.setLastName(res->getString("lastname"));
@@ -129,7 +131,7 @@ BaseUser UserDAO::getBaseUser(const std::string& userName)
 void UserDAO::addContactRelation(int user1Id, int user2Id)
 {
 	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
-		"insert into contactrelation (user1Id, userd2id) values (?, ?)");
+		"insert into contactrelation (user1Id, user2id) values (?, ?)");
 	prep_stmt->setInt(1, user1Id);
 	prep_stmt->setInt(2, user2Id);
 	prep_stmt->executeUpdate();

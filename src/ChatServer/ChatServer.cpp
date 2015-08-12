@@ -95,7 +95,7 @@ void ChatServer::handleAddContact(const AddContactJson& requestJson, connection_
 	{
 		BaseUser initiator = p_userDAO->getBaseUser(initiatorId);
 		BaseUser acceptor = p_userDAO->getBaseUser(acceptorUserName);
-		if (acceptor.getId() == -1)
+		if (acceptor.getId() == -1 || !isUserLoggedIn(acceptor.getId()))
 		{
 			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, false);
 			p_websocketServer->sendMessage(hdl, responseJson);
