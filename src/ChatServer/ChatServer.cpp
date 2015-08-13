@@ -117,7 +117,12 @@ void ChatServer::handleAddContact(const AddContactJson& requestJson, connection_
 			p_websocketServer->sendMessage(hdl, responseJson);
 			return;
 		}
-			
+		if (acceptor.getUserName() == initiator.getUserName())
+		{
+			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, ADD_YOURSELF);
+			p_websocketServer->sendMessage(hdl, responseJson);
+			return;
+		}
 		if(!isUserLoggedIn(acceptor.getId()))
 		{
 			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, ADD_OFFLINE);
@@ -269,6 +274,7 @@ void ChatServer::handleUpdate(const RegisterUpdateUserJson& requestJson, connect
 			p_websocketServer->sendMessage(hdl, responseJson);
 			return;
 		}
+		updatedUser.setId(userId);
 		p_userDAO->updateUser(updatedUser);
 		responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_OK);
 		p_websocketServer->sendMessage(hdl, responseJson);

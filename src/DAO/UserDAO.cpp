@@ -180,7 +180,7 @@ void UserDAO::updateUser(const User& user)
 	prep_stmt->setString(2, user.getPassword());
 	prep_stmt->setString(3, user.getFirstName());
 	prep_stmt->setString(4, user.getLastName());
-	prep_stmt->setInt(4, user.getId());
+	prep_stmt->setInt(5, user.getId());
 	prep_stmt->executeUpdate();
 	prep_stmt->close();
 }
