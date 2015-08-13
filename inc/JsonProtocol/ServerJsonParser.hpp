@@ -26,6 +26,8 @@ public:
 	AddContactResolutionJson tryGetAddContactResolutionJson();
 	RemoveContactJson tryGetRemoveContactJson();
 
+	ChangeStateJson tryGetChangeStateJson();
+	RegisterUpdateUserJson tryGetRegisterUpdateUserJson();
 private:
     Json::CharReader* p_reader;
     Json::Value m_root;

@@ -80,6 +80,22 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
 			break;
 		}
 
+		case REQUEST_CHANGE_STATE:
+		{
+			handleChangeState(p_jsonParser->tryGetChangeStateJson(), hdl);
+			break;
+		}
+		case REQUEST_REGISTER_USER:
+		{
+			handleRegister(p_jsonParser->tryGetRegisterUpdateUserJson(), hdl);
+			break;
+		}
+		case REQUEST_UPDATE_USER:
+		{
+			handleUpdate(p_jsonParser->tryGetRegisterUpdateUserJson(), hdl);
+			break;
+		}
+
         default:
         {
             break;
@@ -95,9 +111,16 @@ void ChatServer::handleAddContact(const AddContactJson& requestJson, connection_
 	{
 		BaseUser initiator = p_userDAO->getBaseUser(initiatorId);
 		BaseUser acceptor = p_userDAO->getBaseUser(acceptorUserName);
-		if (acceptor.getId() == -1 || !isUserLoggedIn(acceptor.getId()))
+		if (acceptor.getId() == -1)
 		{
-			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, false);
+			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, ADD_INEXISTENT);
+			p_websocketServer->sendMessage(hdl, responseJson);
+			return;
+		}
+			
+		if(!isUserLoggedIn(acceptor.getId()))
+		{
+			std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptorUserName, ADD_OFFLINE);
 			p_websocketServer->sendMessage(hdl, responseJson);
 		}
 		else
@@ -121,17 +144,27 @@ void ChatServer::handleAddContactResolution(const AddContactResolutionJson& requ
 		p_userDAO->addContactRelation(acceptor.getId(), initiator.getId());
 
 
-		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), true);
+		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), ADD_ACCEPTED);
 		p_websocketServer->sendMessage(getConnection(initiator.getId()), responseJson);
 
+		USER_STATE initiatorState = m_userState[initiator.getId()];
+		if (initiatorState == INVISIBLE)
+		{
+			initiatorState = OFFLINE;
+		}
+		Contact initiatorContact(initiator, initiatorState);
 
-		Contact initiatorContact(initiator, ONLINE);
-		Contact acceptorContact(acceptor, ONLINE);
+		USER_STATE acceptorState = m_userState[acceptor.getId()];
+		if (acceptorState == INVISIBLE)
+		{
+			acceptorState = OFFLINE;
+		}
+		Contact acceptorContact(acceptor, acceptorState);
 
-		std::string initiatorJson = p_jsonFactory->createGetContactsResponseJsonString(std::vector<Contact>{acceptor});
+		std::string initiatorJson = p_jsonFactory->createGetContactsResponseJsonString(std::vector<Contact>{acceptorContact});
 		p_websocketServer->sendMessage(getConnection(initiator.getId()), initiatorJson);
 
-		std::string acceptorJson = p_jsonFactory->createGetContactsResponseJsonString(std::vector<Contact>{initiator});
+		std::string acceptorJson = p_jsonFactory->createGetContactsResponseJsonString(std::vector<Contact>{initiatorContact});
 		p_websocketServer->sendMessage(hdl, acceptorJson);
 
 		//add in db
@@ -140,7 +173,7 @@ void ChatServer::handleAddContactResolution(const AddContactResolutionJson& requ
 	}
 	else
 	{
-		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), false);
+		std::string responseJson = p_jsonFactory->createAddContactResponseJsonString(acceptor.getUserName(), ADD_DECLINED);
 		p_websocketServer->sendMessage(getConnection(initiator.getId()), responseJson);
 	}
 
@@ -168,16 +201,117 @@ void ChatServer::handleRemoveContact(const RemoveContactJson& requestJson, conne
 	//send notification to removed
 }
 
+void ChatServer::handleChangeState(const ChangeStateJson& requestJson, connection_hdl hdl)
+{
+	int userId = getUserId(hdl);
+	if (userId != -1)
+	{
+		USER_STATE newState = requestJson.getNewState();
+		USER_STATE oldState = m_userState[userId];
+		if (newState != oldState)
+		{
+			m_userState[userId] = newState;
+
+			if (newState == INVISIBLE)
+			{
+				newState = OFFLINE;
+			}
+
+			notifyContactsStateChanged(userId, newState);
+		}
+	}
+}
+
+void ChatServer::handleRegister(const RegisterUpdateUserJson& requestJson, connection_hdl hdl)
+{
+	int userId = getUserId(hdl);
+	if (userId == -1)
+	{
+		std::string responseJson;
+		User user = requestJson.getUser();
+		if (user.getUserName() == "" || user.getPassword() == "" || user.getFirstName() == "" || user.getLastName() == "")
+		{
+			responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_INVALID_INPUT);
+			p_websocketServer->sendMessage(hdl, responseJson);
+			return;
+		}
+		BaseUser existing=p_userDAO->getBaseUser(user.getUserName());
+		if (existing.getId() != -1)
+		{
+			responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_EXISTING_USERNAME);
+			p_websocketServer->sendMessage(hdl, responseJson);
+			return;
+		}
+		p_userDAO->registerUser(user);
+		responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_OK);
+		p_websocketServer->sendMessage(hdl, responseJson);
+	}
+}
+
+void ChatServer::handleUpdate(const RegisterUpdateUserJson& requestJson, connection_hdl hdl)
+{
+	int userId = getUserId(hdl);
+	if (userId != -1)
+	{
+		std::string responseJson;
+		User updatedUser = requestJson.getUser();
+		if (updatedUser.getUserName() == "" || updatedUser.getPassword() == "" || updatedUser.getFirstName() == "" || updatedUser.getLastName() == "")
+		{
+			responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_INVALID_INPUT);
+			p_websocketServer->sendMessage(hdl, responseJson);
+			return;
+		}
+
+		BaseUser existing = p_userDAO->getBaseUser(updatedUser.getUserName());
+		if (existing.getId() != userId && existing.getId()!=-1)
+		{
+			responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_EXISTING_USERNAME);
+			p_websocketServer->sendMessage(hdl, responseJson);
+			return;
+		}
+		p_userDAO->updateUser(updatedUser);
+		responseJson = p_jsonFactory->createUpdateRegisterResponseJsonString(USER_OK);
+		p_websocketServer->sendMessage(hdl, responseJson);
+
+		std::string notificationMessage;
+		USER_STATE state = m_userState[userId];
+		if (state == INVISIBLE)
+		{
+			state = OFFLINE;
+		}
+		Contact c(updatedUser,state);
+		notificationMessage = p_jsonFactory->createGetContactsResponseJsonString({ c });
+
+		const std::vector<Contact>& contacts = p_userDAO->getContacts(userId);
+		for (auto contact : contacts)
+		{
+			if (isUserLoggedIn(contact.getId()))
+			{
+				LOG_DEBUG("Notify:%d\n", contact.getId());
+				p_websocketServer->sendMessage(getConnection(contact.getId()), notificationMessage);
+			}
+		}
+
+	}
+}
+
 void ChatServer::onDisconnected(connection_hdl hdl)
 {
-    notifyContactsOnOnlineStatusChanged(getUserId(hdl),false);
+	int userId = getUserId(hdl);
+	if (userId != -1)
+	{
+		if (m_userState[userId] != INVISIBLE)
+		{
+			notifyContactsStateChanged(getUserId(hdl), OFFLINE);
+		}
 
-    auto user = m_loggedClients.right.find(hdl);
-    if (user != m_loggedClients.right.end())
-    {
-        LOG_DEBUG("Disconnected user with id: %d\n", user->second);
-        m_loggedClients.right.erase(user);
-    }
+		auto user = m_loggedClients.right.find(hdl);
+		if (user != m_loggedClients.right.end())
+		{
+			LOG_DEBUG("Disconnected user with id: %d\n", user->second);
+			m_loggedClients.right.erase(user);
+		}
+	}
 
 }
 
@@ -191,8 +325,16 @@ void ChatServer::tryLogInUser(const LoginRequestJson& requestJson,
 {
 	LOG_DEBUG_METHOD;
 	const UserCredentials& userCredentials = requestJson.getUserCredentials();
-	
+	USER_STATE state = requestJson.getState();
 	std::string jsonResponse;
+
+	if (state == OFFLINE)
+	{
+		jsonResponse = p_jsonFactory->createLoginFailedJsonString(
+			AUTH_INVALID_STATE);
+		p_websocketServer->sendMessage(hdl, jsonResponse);
+		return;
+	}
 
     if (!p_userDAO->isValidUser(userCredentials))
     {
@@ -215,18 +357,21 @@ void ChatServer::tryLogInUser(const LoginRequestJson& requestJson,
     }
 
     logInUser(userDetails,hdl);
-
+	m_userState[userDetails.getId()] = state;
     jsonResponse = p_jsonFactory->createLoginSuccessfulJsonString(userDetails);
     p_websocketServer->sendMessage(hdl,jsonResponse);
 
-    notifyContactsOnOnlineStatusChanged(userDetails.getId(),true);
+	if (state != INVISIBLE)
+	{
+		notifyContactsStateChanged(userDetails.getId(), state);
+	}
+
 }
 
 void ChatServer::logInUser(const UserDetails& userDetails, connection_hdl hdl)
 {
     int userId = userDetails.getId();
     m_loggedClients.insert(userConnectionMap::value_type(userId, hdl));
-
     LOG_DEBUG("Logged in user with id: %d\n", userId);
 }
 
@@ -293,26 +438,26 @@ void ChatServer::setContactsOnlineStatus(std::vector<Contact>& contacts)
         //LOG_DEBUG("U:%d L:%d\n",contact.getDetails().getId(), isLoggedIn);
 		if (isLoggedIn)
 		{
-			contact.setState(ONLINE);
+			USER_STATE state = m_userState[contact.getId()];
+			if (state == INVISIBLE)
+			{
+				state = OFFLINE;
+			}
+			contact.setState(state);
 		}
     }
 }
 
-void ChatServer::notifyContactsOnOnlineStatusChanged(int userId, bool isOnline)
+void ChatServer::notifyContactsStateChanged(int userId, USER_STATE state)
 {
 	if (userId != -1)
 	{
-		LOG_DEBUG("U:%d O:%d\n", userId, isOnline);
+		LOG_DEBUG("U:%d O:%d\n", userId, state);
 
 		std::string notificationMessage;
-		if (isOnline)
-		{
-			notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId, ONLINE);
-		}
-		else
-		{
-			notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId, OFFLINE);
-		}
+
+		notificationMessage = p_jsonFactory->createContactStateChangedJsonString(userId, state);
+
 		const std::vector<Contact>& contacts = p_userDAO->getContacts(userId);
 		for (auto contact : contacts)
 		{

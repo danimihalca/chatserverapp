@@ -113,7 +113,7 @@ std::string ServerJsonFactory::createReceiveMessageJsonString(const Message& mes
 }
 
 
-std::string ServerJsonFactory::createContactStateChangedJsonString(int userId, CONTACT_STATE state)
+std::string ServerJsonFactory::createContactStateChangedJsonString(int userId, USER_STATE state)
 {
     LOG_DEBUG_METHOD;
     m_outputStream.str("");
@@ -162,7 +162,7 @@ std::string ServerJsonFactory::createAddingByContactJsonString(const std::string
 	return m_outputStream.str();
 }
 
-std::string ServerJsonFactory::createAddContactResponseJsonString(const std::string& userName, bool accepted)
+std::string ServerJsonFactory::createAddContactResponseJsonString(const std::string& userName, ADD_STATUS status)
 {
 	m_outputStream.str("");
 	Json::Value root;
@@ -170,7 +170,21 @@ std::string ServerJsonFactory::createAddContactResponseJsonString(const std::str
 	Json::Value content;
 
 	content[USERNAME] = userName;
-	content[ACCEPTED] = accepted;
+	content[ADD_REQUEST_STATUS] = status;
+	root[CONTENT] = content;
+	p_writer->write(root, &m_outputStream);
+
+	return m_outputStream.str();
+}
+
+std::string ServerJsonFactory::createUpdateRegisterResponseJsonString(REGISTER_UPDATE_USER_STATUS status)
+{
+	m_outputStream.str("");
+	Json::Value root;
+	root[RESPONSE_ACTION] = RESPONSE_REGISTER_UPDATE_USER;
+	Json::Value content;
+
+	content[REGISTER_UPDATE_STATUS] = status;
 	root[CONTENT] = content;
 	p_writer->write(root, &m_outputStream);
 

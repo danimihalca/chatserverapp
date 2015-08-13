@@ -38,13 +38,11 @@ LoginRequestJson ServerJsonParser::tryGetLoginRequestJson()
 
 	std::string userName = content[USER_CREDENTIALS][USERNAME].asString();
 	std::string password = content[USER_CREDENTIALS][PASSWORD].asString();
+	USER_STATE state = static_cast<USER_STATE>(content[STATE].asInt());
 
 	UserCredentials userCredentials(userName,password);
 
-	LoginRequestJson requestJson;
-	requestJson.setUserCredentials(userCredentials);
-
-	return requestJson;
+	return LoginRequestJson(userCredentials, state);
 }
 
 //RequestContactsJson ServerJsonParser::tryGetRequestContactsJson()
@@ -97,6 +95,27 @@ RemoveContactJson  ServerJsonParser::tryGetRemoveContactJson()
 	RemoveContactJson requestJson(contactId);
 
 	return requestJson;
+}
+
+ChangeStateJson ServerJsonParser::tryGetChangeStateJson()
+{
+	Json::Value content = m_root[CONTENT];
+
+	USER_STATE newState = static_cast<USER_STATE>(content[STATE].asInt());
+
+	return ChangeStateJson(newState);
+}
+
+RegisterUpdateUserJson ServerJsonParser::tryGetRegisterUpdateUserJson()
+{
+	Json::Value content = m_root[CONTENT];
+
+	USER_STATE newState = static_cast<USER_STATE>(content[STATE].asInt());
+
+	User user(-1, content[USER][USERNAME].asString(), content[USER][PASSWORD].asString(),
+		content[USER][FIRSTNAME].asString(), content[USER][LASTNAME].asString());
+
+	return RegisterUpdateUserJson(user);
 }
 
 //UserCredentials ServerJsonParser::getUserCredentials()

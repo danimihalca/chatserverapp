@@ -20,11 +20,13 @@ public:
 	std::string createLoginFailedJsonString(AUTH_STATUS status);
 	std::string createGetContactsResponseJsonString(const std::vector<Contact>& contacts);
     std::string createReceiveMessageJsonString(const Message& message);
-	std::string createContactStateChangedJsonString(int userId, CONTACT_STATE state);
+	std::string createContactStateChangedJsonString(int userId, USER_STATE state);
 
 	std::string createRemovedByContactJsonString(int contactId);
 	std::string createAddingByContactJsonString(const std::string& userName);
-	std::string createAddContactResponseJsonString(const std::string& userName, bool accepted);
+	std::string createAddContactResponseJsonString(const std::string& userName, ADD_STATUS status);
+
+	std::string createUpdateRegisterResponseJsonString(REGISTER_UPDATE_USER_STATUS status);
 
 private:
     Json::StreamWriter* p_writer;

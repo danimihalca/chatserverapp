@@ -25,6 +25,9 @@ public:
 	void removeContactRelation(int user1Id, int user2Id);
 	bool isContactRelation(int user1Id, int user2Id);
 
+	void registerUser(const User& user);
+	void updateUser(const User& user);
+
 private:
     sql::Connection* p_con;
 };

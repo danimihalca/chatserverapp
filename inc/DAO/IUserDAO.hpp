@@ -17,6 +17,9 @@ public:
 	virtual void removeContactRelation(int user1Id, int user2Id) = 0;
 	virtual bool isContactRelation(int user1Id, int user2Id) = 0;
 
+	virtual void registerUser(const User& user) = 0;
+	virtual void updateUser(const User& user) = 0;
+
     virtual ~IUserDAO()
     {
     }

@@ -14,6 +14,9 @@
 #include <JsonChatProtocol/json_request/AddContactJson.hpp>
 #include <JsonChatProtocol/json_request/AddContactResolutionJson.hpp>
 
+#include <JsonChatProtocol/json_request/ChangeStateJson.hpp>
+#include <JsonChatProtocol/json_request/RegisterUpdateUserJson.hpp>
+
 class IServerJsonParser
 {
 public:
@@ -28,6 +31,8 @@ public:
 	virtual AddContactResolutionJson tryGetAddContactResolutionJson() = 0;
 	virtual RemoveContactJson tryGetRemoveContactJson() = 0;
 
+	virtual ChangeStateJson tryGetChangeStateJson() = 0;
+	virtual RegisterUpdateUserJson tryGetRegisterUpdateUserJson() = 0;
 
     virtual ~IServerJsonParser()
     {

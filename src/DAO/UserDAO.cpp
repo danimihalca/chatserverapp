@@ -158,3 +158,29 @@ bool  UserDAO::isContactRelation(int user1Id, int user2Id)
 		prep_stmt->close();
 	return (contactrelation);
 }
+
+
+void UserDAO::registerUser(const User& user)
+{
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"insert into user (username, password, firstname, lastname) values (?, ?, ?, ?)");
+	prep_stmt->setString(1, user.getUserName());
+	prep_stmt->setString(2, user.getPassword());
+	prep_stmt->setString(3, user.getFirstName());
+	prep_stmt->setString(4, user.getLastName());
+	prep_stmt->executeUpdate();
+	prep_stmt->close();
+}
+
+void UserDAO::updateUser(const User& user)
+{
+	sql::PreparedStatement* prep_stmt = p_con->prepareStatement(
+		"update user set username=?, password=?, firstname=?, lastname=? where id=?");
+	prep_stmt->setString(1, user.getUserName());
+	prep_stmt->setString(2, user.getPassword());
+	prep_stmt->setString(3, user.getFirstName());
+	prep_stmt->setString(4, user.getLastName());
+	prep_stmt->setInt(4, user.getId());
+	prep_stmt->executeUpdate();
+	prep_stmt->close();
+}

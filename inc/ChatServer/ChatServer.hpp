@@ -28,7 +28,8 @@ class IServerJsonParser;
 class IServerJsonFactory;
 class IUserDAO;
 
-
+class ChangeStateJson;
+class RegisterUpdateUserJson;
 
 class ChatServer : public IChatServer, public IWebsocketServerListener
 {
@@ -55,6 +56,10 @@ private:
 	void handleAddContactResolution(const AddContactResolutionJson& requestJson, connection_hdl hdl);
 	void handleRemoveContact(const RemoveContactJson& requestJson, connection_hdl hdl);
 
+	void handleChangeState(const ChangeStateJson& requestJson, connection_hdl hdl);
+	void handleRegister(const RegisterUpdateUserJson& requestJson, connection_hdl hdl);
+	void handleUpdate(const RegisterUpdateUserJson& requestJson, connection_hdl hdl);
+
     bool isUserLoggedIn(int userId);
 	void tryLogInUser(const LoginRequestJson&, connection_hdl hdl);
     void logInUser(const UserDetails& userDetails, connection_hdl hdl);
@@ -65,7 +70,7 @@ private:
     void handleGetContactsRequest(connection_hdl hdl);
 	void handleSendMessage(const SendMessageJson& requestJson, connection_hdl hdl);
 	void setContactsOnlineStatus(std::vector<Contact>& contacts);
-    void notifyContactsOnOnlineStatusChanged(int userId, bool isOnline);
+	void notifyContactsStateChanged(int userId, USER_STATE state);
 private:
     std::unique_ptr<IWebsocketServer> p_websocketServer;
     std::unique_ptr<IServerJsonParser> p_jsonParser;
@@ -73,6 +78,7 @@ private:
     std::unique_ptr<IUserDAO> p_userDAO;
 
     userConnectionMap m_loggedClients;
+	std::map<int, USER_STATE> m_userState;
 
 };
 
