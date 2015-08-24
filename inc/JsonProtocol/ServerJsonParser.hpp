@@ -16,7 +16,7 @@ public:
     // Implements IServerJsonParser interface
 public:
 	bool trySetJsonString(const std::string& json);
-    REQUEST_ACTION_TYPE getActionType();
+    ACTION_TYPE getActionType();
 	
 	LoginRequestJson tryGetLoginRequestJson();
 	//RequestContactsJson tryGetRequestContactsJson();

@@ -27,9 +27,9 @@ bool ServerJsonParser::trySetJsonString(const std::string& json)
                            &m_errors);
 }
 
-REQUEST_ACTION_TYPE ServerJsonParser::getActionType()
+ACTION_TYPE ServerJsonParser::getActionType()
 {
-	return static_cast<REQUEST_ACTION_TYPE>(m_root[REQUEST_ACTION].asInt());
+	return static_cast<ACTION_TYPE>(m_root[ACTION].asInt());
 }
 
 LoginRequestJson ServerJsonParser::tryGetLoginRequestJson()

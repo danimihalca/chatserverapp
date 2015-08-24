@@ -39,58 +39,58 @@ void ChatServer::onMessageReceived(connection_hdl     hdl,
         return;
     }
 
-    REQUEST_ACTION_TYPE actionType = p_jsonParser->getActionType();
+    ACTION_TYPE actionType = p_jsonParser->getActionType();
     switch(actionType)
     {
-        case REQUEST_LOGIN:
+        case ACTION_LOGIN:
         {
 			LoginRequestJson requestJson = p_jsonParser->tryGetLoginRequestJson();
 			tryLogInUser(requestJson, hdl);
             break;
         }
 
-        case REQUEST_GET_CONTACTS:
+        case ACTION_GET_CONTACTS:
         {
             handleGetContactsRequest(hdl);
             break;
         }
 
-        case REQUEST_SEND_MESSAGE:
+        case ACTION_SEND_MESSAGE:
         {
 			SendMessageJson requestJson = p_jsonParser->tryGetSendMessageJson();
 			handleSendMessage(requestJson, hdl);
             break;
         }
 
-		case REQUEST_ADD_CONTACT:
+		case ACTION_ADD_CONTACT:
 		{
 			handleAddContact(p_jsonParser->tryGetAddContactJson(), hdl);
 			break;
 		}
 
-		case REQUEST_ADD_CONTACT_RESOLUTION:
+		case ACTION_ADD_CONTACT_RESOLUTION:
 		{
 			handleAddContactResolution(p_jsonParser->tryGetAddContactResolutionJson(), hdl);
 			break;
 		}
 
-		case REQUEST_REMOVE_CONTACT:
+		case ACTION_REMOVE_CONTACT:
 		{
 			handleRemoveContact(p_jsonParser->tryGetRemoveContactJson(), hdl);
 			break;
 		}
 
-		case REQUEST_CHANGE_STATE:
+		case ACTION_CHANGE_STATE:
 		{
 			handleChangeState(p_jsonParser->tryGetChangeStateJson(), hdl);
 			break;
 		}
-		case REQUEST_REGISTER_USER:
+		case ACTION_REGISTER_USER:
 		{
 			handleRegister(p_jsonParser->tryGetRegisterUpdateUserJson(), hdl);
 			break;
 		}
-		case REQUEST_UPDATE_USER:
+		case ACTION_UPDATE_USER:
 		{
 			handleUpdate(p_jsonParser->tryGetRegisterUpdateUserJson(), hdl);
 			break;

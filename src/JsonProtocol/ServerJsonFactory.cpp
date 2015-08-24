@@ -26,7 +26,7 @@ std::string ServerJsonFactory::createLoginSuccessfulJsonString(
 	LOG_DEBUG_METHOD;
 	m_outputStream.str("");
     Json::Value root;
-    root[RESPONSE_ACTION] = RESPONSE_LOGIN;
+    root[NOTIFICATION] = NOTIFICATION_LOGIN;
 
 	Json::Value content;
 
@@ -51,7 +51,7 @@ std::string ServerJsonFactory::createLoginFailedJsonString(
 {
     m_outputStream.str("");
     Json::Value root;
-	root[RESPONSE_ACTION] = RESPONSE_LOGIN;
+	root[NOTIFICATION] = NOTIFICATION_LOGIN;
 	Json::Value content;
 	
 	content[AUTHENTICATION_STATUS] = status;
@@ -67,7 +67,7 @@ std::string ServerJsonFactory::createGetContactsResponseJsonString(
 {
     m_outputStream.str("");
     Json::Value root;
-	root[RESPONSE_ACTION] = RESPONSE_GET_CONTACTS;
+	root[NOTIFICATION] = NOTIFICATION_GET_CONTACTS;
 
 	Json::Value content;
     Json::Value contactsJson;
@@ -98,7 +98,7 @@ std::string ServerJsonFactory::createReceiveMessageJsonString(const Message& mes
     m_outputStream.str("");
     Json::Value root;
 	Json::Value content;
-	root[RESPONSE_ACTION] = RESPONSE_SEND_MESSAGE;
+	root[NOTIFICATION] = NOTIFICATION_SEND_MESSAGE;
 
     Json::Value messageJson;
 
@@ -121,7 +121,7 @@ std::string ServerJsonFactory::createContactStateChangedJsonString(int userId, U
     Json::Value root;
 	Json::Value content;
 	Json::Value contact;
-	root[RESPONSE_ACTION] = RESPONSE_CONTACT_STATE_CHANGED;
+	root[NOTIFICATION] = NOTIFICATION_CONTACT_STATE_CHANGED;
 
 	contact[ID] = userId;
 	contact[STATE] = state;
@@ -138,7 +138,7 @@ std::string ServerJsonFactory::createRemovedByContactJsonString(int contactId)
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[RESPONSE_ACTION] = RESPONSE_REMOVE_CONTACT;
+	root[NOTIFICATION] = NOTIFICATION_REMOVE_CONTACT;
 	Json::Value content;
 
 	content[ID] = contactId;
@@ -152,7 +152,7 @@ std::string ServerJsonFactory::createAddingByContactJsonString(const std::string
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[RESPONSE_ACTION] = RESPONSE_ADD_CONTACT;
+	root[NOTIFICATION] = NOTIFICATION_ADD_REQUEST;
 	Json::Value content;
 
 	content[USERNAME] = userName;
@@ -166,7 +166,7 @@ std::string ServerJsonFactory::createAddContactResponseJsonString(const std::str
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[RESPONSE_ACTION] = RESPONSE_ADD_CONTACT_RESOLUTION;
+	root[NOTIFICATION] = NOTIFICATION_ADD_CONTACT_RESPONSE;
 	Json::Value content;
 
 	content[USERNAME] = userName;
@@ -181,7 +181,7 @@ std::string ServerJsonFactory::createUpdateRegisterResponseJsonString(REGISTER_U
 {
 	m_outputStream.str("");
 	Json::Value root;
-	root[RESPONSE_ACTION] = RESPONSE_REGISTER_UPDATE_USER;
+	root[NOTIFICATION] = NOTIFICATION_REGISTER_UPDATE_USER;
 	Json::Value content;
 
 	content[REGISTER_UPDATE_STATUS] = status;

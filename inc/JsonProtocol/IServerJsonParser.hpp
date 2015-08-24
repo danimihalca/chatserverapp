@@ -21,7 +21,7 @@ class IServerJsonParser
 {
 public:
 	virtual bool trySetJsonString(const std::string& json) = 0;
-    virtual REQUEST_ACTION_TYPE getActionType() = 0;
+    virtual ACTION_TYPE getActionType() = 0;
 	
 	virtual LoginRequestJson tryGetLoginRequestJson() = 0;
 	//virtual RequestContactsJson tryGetRequestContactsJson() = 0;
